@@ -46,14 +46,12 @@ go run .
 
 | 模块 | 职责 | 仓库 |
 |------|------|------|
-| core | 契约 SDK（contract/entity/enum/util） | [hecc-blot-core](https://github.com/hecc-blot/core) |
-| ioc | 依赖注入容器（零依赖） | [hecc-blot-ioc](https://github.com/hecc-blot/ioc) |
-| api | HTTP 内核（路由 + 响应 + trace 中间件） | [hecc-blot-api](https://github.com/hecc-blot/api) |
-| error | 统一错误 | [hecc-blot-error](https://github.com/hecc-blot/error) |
+| framework | 框架内核（接口契约 + IOC 容器 + HTTP 内核 + 统一错误 + 本地日志） | [hecc-blot-framework](https://github.com/hecc-blot/framework) |
+| ratelimit | 限流（内存 + Redis，滑动窗口/令牌桶） | [hecc-blot-ratelimit](https://github.com/hecc-blot/ratelimit) |
+| log-sls | 日志（阿里云 SLS） | [hecc-blot-log-sls](https://github.com/hecc-blot/log-sls) |
 | sse | SSE 推送 | [hecc-blot-sse](https://github.com/hecc-blot/sse) |
 | db | 数据库（GORM MySQL/PostgreSQL） | [hecc-blot-db](https://github.com/hecc-blot/db) |
 | cache | 缓存（本地 + Redis） | [hecc-blot-cache](https://github.com/hecc-blot/cache) |
-| log | 日志（Zap + SLS） | [hecc-blot-log](https://github.com/hecc-blot/log) |
 | trace | 链路追踪（OpenTelemetry） | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
 
 ## 文档索引

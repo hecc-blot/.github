@@ -46,14 +46,12 @@ go run .
 
 | Module | Responsibility | Repository |
 |--------|----------------|------------|
-| core | contract SDK (contract/entity/enum/util) | [hecc-blot-core](https://github.com/hecc-blot/core) |
-| ioc | dependency injection container (zero deps) | [hecc-blot-ioc](https://github.com/hecc-blot/ioc) |
-| api | HTTP core (routes + response + trace middleware) | [hecc-blot-api](https://github.com/hecc-blot/api) |
-| error | unified errors | [hecc-blot-error](https://github.com/hecc-blot/error) |
+| framework | framework core (contracts + IOC container + HTTP kernel + unified errors + local logging) | [hecc-blot-framework](https://github.com/hecc-blot/framework) |
+| ratelimit | rate limiting (in-memory + Redis, sliding window / token bucket) | [hecc-blot-ratelimit](https://github.com/hecc-blot/ratelimit) |
+| log-sls | logging (Alibaba Cloud SLS) | [hecc-blot-log-sls](https://github.com/hecc-blot/log-sls) |
 | sse | SSE push | [hecc-blot-sse](https://github.com/hecc-blot/sse) |
 | db | database (GORM MySQL/PostgreSQL) | [hecc-blot-db](https://github.com/hecc-blot/db) |
 | cache | cache (local + Redis) | [hecc-blot-cache](https://github.com/hecc-blot/cache) |
-| log | logging (Zap + SLS) | [hecc-blot-log](https://github.com/hecc-blot/log) |
 | trace | tracing (OpenTelemetry) | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
 
 ## Documentation

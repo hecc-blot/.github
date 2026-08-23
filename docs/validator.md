@@ -41,14 +41,14 @@ type AddRequest struct {
 实现 `IValidator` 接口，返回字段+规则对应的中文提示：
 
 ```go
-// hecc-blot-core/contract/api/validator.go
+// framework/contract/api/validator.go
 type IValidator interface {
     GetMessages() entityApi.Messages
 }
 ```
 
 ```go
-// hecc-blot-core/entity/api/validator.go
+// framework/entity/api/validator.go
 type Messages map[string]string
 ```
 

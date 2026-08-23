@@ -6,7 +6,7 @@
 
 Hecc-Blot 是一个基于 Go 的轻量级后端框架，核心理念是**面向接口**：
 
-- 所有能力通过 `hecc-blot-core` 模块的 `contract/` 接口契约暴露，具体实现按模块拆分、可替换。
+- 所有能力通过 `framework` 模块的 `contract/` 接口契约暴露，具体实现按模块拆分、可替换。
 - 依赖通过反射实现的 IOC 容器自动注入，容器本身也通过 `IContainer` 接口约束、可替换。
 - 业务方（如 `example/example.go`）只依赖接口，不 import 具体实现（IOC 容器创建除外）。
 
@@ -18,19 +18,17 @@ Hecc-Blot 是一个基于 Go 的轻量级后端框架，核心理念是**面向�
 
 | 模块 | module path | 职责 |
 |------|-------------|------|
-| ioc | `github.com/hecc-blot/ioc` | 依赖注入容器（仅标准库，零依赖） |
-| core | `github.com/hecc-blot/core` | 契约 SDK（contract/entity/enum/util） |
-| api | `github.com/hecc-blot/api` | HTTP 内核（路由 + 响应 + trace 中间件） |
-| error | `github.com/hecc-blot/error` | 统一错误实现 |
+| framework | `github.com/hecc-blot/framework` | 框架内核：接口契约（contract）+ IOC 容器 + HTTP 内核 + 统一错误 + 本地日志（原 core/ioc/api/error 四合一） |
+| ratelimit | `github.com/hecc-blot/ratelimit` | 限流（内存 + Redis，滑动窗口/令牌桶） |
+| log-sls | `github.com/hecc-blot/log-sls` | 日志（阿里云 SLS） |
 | sse | `github.com/hecc-blot/sse` | SSE 推送 |
 | db | `github.com/hecc-blot/db` | 数据库（GORM MySQL/PostgreSQL） |
 | cache | `github.com/hecc-blot/cache` | 缓存（本地 + Redis） |
-| log | `github.com/hecc-blot/log` | 日志（Zap + SLS） |
 | trace | `github.com/hecc-blot/trace` | 链路追踪（OpenTelemetry） |
 
 本仓库是框架的**伞仓（guide）**，只含 `example/`（使用示例）、`docs/`（文档）与路线图，不包含模块源码。
 
-依赖方向严格单向：`core → 第三方`，`api/error/sse/db/cache/log/trace → core`，`api → error`，`api/sse → ioc 接口`。**禁止反向依赖**（core 不得 import 实现模块，实现模块之间不得互相依赖具体实现）。
+依赖方向严格单向：`framework`/`ratelimit → 第三方`，`log-sls`/`sse`/`db`/`trace → framework`，`cache → framework+trace`。**禁止反向依赖**（framework 不得 import 实现模块，实现模块之间不得互相依赖具体实现）。
 
 ## 3. 包与导入别名约定
 
@@ -38,11 +36,12 @@ Hecc-Blot 是一个基于 Go 的轻量级后端框架，核心理念是**面向�
 
 | 模块路径 | 别名 | 示例 |
 |------|------|------|
-| `hecc-blot-core/contract/*` | `iCore*` | `iCoreApi "github.com/hecc-blot/core/contract/api"` |
-| `hecc-blot-core/entity/config` | `coreConfig` | `coreConfig "github.com/hecc-blot/core/entity/config"` |
-| `hecc-blot-core/entity/api` | `entityApi` | `entityApi "github.com/hecc-blot/core/entity/api"` |
-| `hecc-blot-core/enum/*` | `*Enum` 或原包名 | `dbEnum`、`envEnum`；`"github.com/hecc-blot/core/enum/response"` |
-| 实现模块（`hecc-blot-api`/`hecc-blot-error` 等） | 原包名，冲突时加后缀 | `errorSvc "github.com/hecc-blot/error"` |
+| `framework/contract/*` | `iCore*` / `*Contract` | `iCoreApi "github.com/hecc-blot/framework/contract/api"`、`logContract "github.com/hecc-blot/framework/contract/log"` |
+| `framework/entity/*` | `entity*` | `entityApi "github.com/hecc-blot/framework/entity/api"` |
+| `framework/service/*` | `*Svc` 或原包名 | `httpSvc "github.com/hecc-blot/framework/service/http"`、`ioc "github.com/hecc-blot/framework/service/ioc"` |
+| 其余模块 `contract/*` | `<模块>Contract` | `cacheContract "github.com/hecc-blot/cache/contract"`、`dbContract "github.com/hecc-blot/db/contract"` |
+| 其余模块 `service/*` | 模块短名 | `cache "github.com/hecc-blot/cache/service"`、`logsls "github.com/hecc-blot/log-sls/service"` |
+| `config/*` / `enum/*` | `<模块>Config` / `<模块>Enum` 或原包名 | `ratelimitConfig "github.com/hecc-blot/ratelimit/config"`、`dbEnum "github.com/hecc-blot/db/enum/db"` |
 
 接口命名：`I` 前缀（`IApi`、`IDb`、`ILog`、`ITrace`、`IError`、`ISse`、`IContainer`）。工厂/处理器接口为 `I*Factory`、`I*Handle`。
 
@@ -50,7 +49,7 @@ Hecc-Blot 是一个基于 Go 的轻量级后端框架，核心理念是**面向�
 
 ### 4.1 IOC 注入字段顺序：服务在前，请求参数在后
 
-`ioc.Inject` 遍历结构体字段时，遇到第一个**没有** `inject` tag 的字段就 `return`（`hecc-blot-ioc/ioc_svc.go`）——这是**刻意设计**，不是 bug。
+`ioc.Inject` 遍历结构体字段时，遇到第一个**没有** `inject` tag 的字段就 `return`（`framework/service/ioc/ioc_svc.go`）——这是**刻意设计**，不是 bug。
 
 因此定义 API / 中间件结构体时，带 `inject:""` 的依赖字段必须放在最前面，请求参数（含 embed 的 Request 结构体）放在最后：
 
@@ -66,26 +65,26 @@ type AddAccountApi struct {
 
 ### 4.2 IOC 容器可替换（依赖接口）
 
-框架组件（`hecc-blot-api` 的 `ApiHandle`/`SseHandle`）依赖 `hecc-blot-core/contract/ioc` 的 `IContainer` 接口，**不依赖 `hecc-blot-ioc` 的具体实现**。默认实现是 `hecc-blot-ioc` 的 `Container`（`ioc.New()` 创建），业务方可替换为自己的实现。
+框架组件（`framework/service/http` 的 `ApiHandle`、`sse` 模块的 `SseHandle`）依赖 `framework/contract/ioc` 的 `IContainer` 接口，**不依赖 `framework/service/ioc` 的具体实现**。默认实现是 `framework/service/ioc` 的 `Container`（`ioc.New()` 创建），业务方可替换为自己的实现。
 
-初始化时显式创建容器并传入：`api.NewApiSvc(..., container)`（container 为 nil 会 panic）。
+初始化时显式创建容器并传入：`httpSvc.NewApiSvc(..., container)`（container 为 nil 会 panic）。
 
 ### 4.3 DB 链式方法返回新实例（不可变）
 
-`hecc-blot-db/base.go` 中 `Where/Order/Limit/Offset/Select/Query` 每次都返回新的 `&BaseDbSvc{...}`，**不是性能问题，是正确性要求**——防止链式调用条件累加污染实例。不要改成原地修改。
+`db/service/base.go` 中 `Where/Order/Limit/Offset/Select/Query` 每次都返回新的 `&BaseDbSvc{...}`，**不是性能问题，是正确性要求**——防止链式调用条件累加污染实例。不要改成原地修改。
 
 需要复用基础查询时，用 `DbFactory.Build(ctx)` 创建新实例，而不是在已带条件的实例上继续链式。
 
 ### 4.4 请求级实例隔离
 
-`ApiHandle.registerAPI` 每个请求通过 `reflect.New` 创建独立实例再注入（`hecc-blot-api/http_svc.go`），避免并发写同一实例。因此：
+`ApiHandle.registerAPI` 每个请求通过 `reflect.New` 创建独立实例再注入（`framework/service/http/http_svc.go`），避免并发写同一实例。因此：
 
 - API 结构体不要在注入字段上保存请求态数据。
 - 注册时传的是「模板实例」（`apiHandle.Post("path", &AddAccountApi{})`），运行时按类型反射重建。
 
 ### 4.5 错误必须走统一错误
 
-`Call` 返回 `(interface{}, IError)`，错误统一用 `hecc-blot-error` 构造，配合 `hecc-blot-core/enum/response` 的响应码：
+`Call` 返回 `(interface{}, IError)`，错误统一用 `framework/service/error` 构造，配合 `framework/enum/response` 的响应码：
 
 ```go
 return nil, errorSvc.NewError(response.Fail, err)
@@ -101,7 +100,7 @@ return nil, errorSvc.NewError(response.Fail, err)
 - **数据库**：`IDbModel`（`GetID() int` + `TableName()`）定义模型；`IDbFactory.Build(ctx, [dbEnum.Postgres])` 取库；事务用 `Begin()/Commit()/Rollback()`（在返回的 tx 实例上调用）。
 - **缓存**：`ICacheFactory.Local()/Redis()`，本地缓存 + Redis 双层；`IBaseCache` 提供 `Set/Get/Del/Exists`。
 - **日志**：`ILog.Info/Debug/Warn/Error(ctx, msg, fields...)`，`fields` 用 `zap` 字段（`zap.String(...)`）。自动附加 `traceId`。
-- **链路追踪**：`ITrace.Start/FromContext` 返回 `Span`，支持 `SetAttribute/RecordError/End`。`HttpTraceMiddleware`（在 `hecc-blot-api` 内）自动创建请求 Span 并注入 `traceId` 到 context（key 见 `enum/trace`）。
+- **链路追踪**：`ITrace.Start/FromContext` 返回 `Span`，支持 `SetAttribute/RecordError/End`。`trace.NewHttpMiddleware`（`trace` 模块）自动创建请求 Span 并注入 `traceId` 到 context（key 见 `framework/enum/trace`）。
 - **SSE**：实现 `ISse.Serve(ctx, w)` 接口，通过 `ISseHandle.Get` 注册，与 API 共享端口。框架已封装 Flusher 断言、心跳、Accept 校验、连接限流与错误帧，业务通过 `Writer.Send` 写入、通过 `ctx` 感知断开。
 
 ## 6. 新增一个业务接口的标准步骤
@@ -120,17 +119,17 @@ return nil, errorSvc.NewError(response.Fail, err)
 
 替换某个组件（如日志、缓存、数据库，甚至 IOC 容器）只需：
 
-1. 在对应模块仓库（`hecc-blot-<xxx>`）下实现对应 `contract/` 接口。
+1. 在对应模块仓库（`github.com/hecc-blot/<xxx>`）下实现对应 `contract/` 接口。
 2. 在初始化处用新实现注册（IOC 容器用 `ioc.New()` 换成自己的实现，普通组件用 `container.Set`）。
 
 不要改动 `contract/` 已有接口签名；确需扩展时，新增方法或新接口而非破坏旧方法。
 
 ## 8. 代码风格
 
-- **注释用中文**，关键设计决策写清「为什么」（参考 `hecc-blot-db/base.go`、`hecc-blot-ioc/ioc_svc.go` 的注释风格）。
+- **注释用中文**，关键设计决策写清「为什么」（参考 `db/service/base.go`、`framework/service/ioc/ioc_svc.go` 的注释风格）。
 - 错误初始化用 `must/must2`（panic 语义），业务错误走统一 `IError`。
 - 泛型用于分页工具（`util.NewPage[T]`、`util.NewCursor[T]`），不要为微优化滥用。
-- 测试用 `testify`，测试文件与实现同包（`_test.go` 已有范例：`hecc-blot-db/*_test.go`、`hecc-blot-cache/*_test.go`、`hecc-blot-log/*_test.go`）。
+- 测试用 `testify`，测试文件与实现同包（`_test.go` 已有范例：`db/service/*_test.go`、`cache/service/*_test.go`、`log-sls/service/*_test.go`）。
 
 ## 9. 测试与验证
 
@@ -146,7 +145,7 @@ go mod tidy && go build ./... && go test ./...
 go build ./... && go test ./...
 ```
 
-注意：测试涉及 Redis/MySQL/PostgreSQL 的用例（`hecc-blot-db`、`hecc-blot-cache` 部分）可能依赖真实服务，本地跑不动时优先跑纯单元测试。
+注意：测试涉及 Redis/MySQL/PostgreSQL 的用例（`db`、`cache` 部分）可能依赖真实服务，本地跑不动时优先跑纯单元测试。
 
 ## 10. 已知规划
 

@@ -72,7 +72,7 @@ func New() *Container
 
 - **外层 Map**: Key 为接口类型 (`reflect.Type`)，Value 为内层 Map
 - **内层 Map**: Key 为实例名称（用于区分同接口的多个实现），Value 为实例的反射值
-- **容器实例**: 通过 `ioc.New()` 显式创建，框架组件依赖 `IContainer` 接口（见 `core/contract/ioc`）而非具体实现
+- **容器实例**: 通过 `ioc.New()` 显式创建，框架组件依赖 `IContainer` 接口（见 `framework/contract/ioc`）而非具体实现
 
 ### 2. 注册方法
 
@@ -319,7 +319,7 @@ type MyApi struct {
 
 ## 单测示例
 
-IOC 容器的单元测试见 `hecc-blot-ioc/ioc_svc_test.go`，演示了 `Container` 的 `Set`、`SetWithName`、`Inject` 方法的标准用法和验证方式。
+IOC 容器的单元测试见 `framework/service/ioc/ioc_svc_test.go`，演示了 `Container` 的 `Set`、`SetWithName`、`Inject` 方法的标准用法和验证方式。
 
 ***
 
