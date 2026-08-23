@@ -39,8 +39,8 @@ trace:
 
 ```go
 import (
-    traceContract "github.com/bestHeCC/hecc-trace/contract"
-    "github.com/bestHeCC/hecc-trace"
+    traceContract "github.com/hecc-blot/hecc-blot-trace/contract"
+    "github.com/hecc-blot/hecc-blot-trace"
 )
 
 // 初始化

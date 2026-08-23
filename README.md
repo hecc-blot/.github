@@ -1,9 +1,9 @@
 # Hecc-Blot
 
-[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/bestHeCC/Hecc-Blot)
+[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/bestHeCC/Hecc-Blot)
-[![Gitee](https://img.shields.io/badge/Gitee-Hecc--Blot-C71D23?logo=gitee&logoColor=white)](https://gitee.com/bestHeCC/Hecc-Blot)
+[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
+[![Gitee](https://img.shields.io/badge/Gitee-Hecc--Blot-C71D23?logo=gitee&logoColor=white)](https://gitee.com/hecc-blot/hecc-blot-guide)
 [![English](https://img.shields.io/badge/English-README_EN-blue)](README_EN.md)
 
 Hecc-Blot 是一个基于 Go 语言的轻量级后端框架，采用面向接口的设计理念，提供依赖注入、路由注册、参数校验、统一响应等核心功能。
@@ -34,25 +34,27 @@ go run .
 ## 目录结构
 
 ```
-├── modules/                # 子模块（go.work 管理，Monorepo 多 module）
-│   ├── ioc/                # 依赖注入容器（github.com/bestHeCC/hecc-ioc）
-│   ├── core/               # 契约 SDK（github.com/bestHeCC/hecc-core）
-│   │   ├── contract/       # 接口契约（api/cache/db/error/ioc/log/sse/trace）
-│   │   ├── entity/         # 实体与配置结构体
-│   │   ├── enum/           # 枚举（env/db/response/trace）
-│   │   └── util/           # 工具函数（分页、校验消息、上下文提取）
-│   ├── api/                # HTTP 内核（github.com/bestHeCC/hecc-api）
-│   ├── error/              # 统一错误（github.com/bestHeCC/hecc-error）
-│   ├── sse/                # SSE 推送（github.com/bestHeCC/hecc-sse）
-│   ├── db/                 # MySQL / PostgreSQL（github.com/bestHeCC/hecc-db）
-│   ├── cache/              # 本地 + Redis 缓存（github.com/bestHeCC/hecc-cache）
-│   ├── log/                # 日志（github.com/bestHeCC/hecc-log）
-│   └── trace/              # OpenTelemetry 追踪（github.com/bestHeCC/hecc-trace）
 ├── example/                # 完整使用示例（go run ./example）
-├── docs/                   # 文档
-├── go.work                 # workspace 配置
+├── docs/                   # 分模块使用文档
+├── feature.md              # 路线图与优化规划
 └── README.md
 ```
+
+> 各功能模块已拆分为独立仓库，通过 `go get` 引入（见下方「模块仓库」），不再包含在本仓库中。
+
+## 模块仓库
+
+| 模块 | 职责 | 仓库 |
+|------|------|------|
+| core | 契约 SDK（contract/entity/enum/util） | [hecc-blot-core](https://github.com/hecc-blot/hecc-blot-core) |
+| ioc | 依赖注入容器（零依赖） | [hecc-blot-ioc](https://github.com/hecc-blot/hecc-blot-ioc) |
+| api | HTTP 内核（路由 + 响应 + trace 中间件） | [hecc-blot-api](https://github.com/hecc-blot/hecc-blot-api) |
+| error | 统一错误 | [hecc-blot-error](https://github.com/hecc-blot/hecc-blot-error) |
+| sse | SSE 推送 | [hecc-blot-sse](https://github.com/hecc-blot/hecc-blot-sse) |
+| db | 数据库（GORM MySQL/PostgreSQL） | [hecc-blot-db](https://github.com/hecc-blot/hecc-blot-db) |
+| cache | 缓存（本地 + Redis） | [hecc-blot-cache](https://github.com/hecc-blot/hecc-blot-cache) |
+| log | 日志（Zap + SLS） | [hecc-blot-log](https://github.com/hecc-blot/hecc-blot-log) |
+| trace | 链路追踪（OpenTelemetry） | [hecc-blot-trace](https://github.com/hecc-blot/hecc-blot-trace) |
 
 ## 文档索引
 
@@ -150,7 +152,7 @@ go run .
 
 ### 反馈与贡献
 
-- **Bug 反馈和功能建议**: 欢迎提交 [Issue](https://github.com/bestHeCC/Hecc-Blot/issues)
+- **Bug 反馈和功能建议**: 欢迎提交 [Issue](https://github.com/hecc-blot/hecc-blot-guide/issues)
 - **代码贡献**: 欢迎提交 Pull Request
 
 ### 致谢

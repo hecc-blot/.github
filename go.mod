@@ -1,4 +1,4 @@
-module hecc-blot
+module github.com/hecc-blot/hecc-blot-guide
 
 go 1.26.1
 
@@ -9,32 +9,36 @@ require (
 )
 
 require (
+	github.com/ClickHouse/ch-go v0.61.5 // indirect
+	github.com/ClickHouse/clickhouse-go/v2 v2.30.0 // indirect
 	github.com/aliyun/aliyun-log-go-sdk v0.1.126 // indirect
+	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/go-faster/city v1.0.1 // indirect
+	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-playground/validator/v10 v10.30.2 // indirect
+	github.com/hashicorp/go-version v1.6.0 // indirect
+	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/redis/go-redis/v9 v9.22.0 // indirect
+	github.com/segmentio/asm v1.2.0 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
 	go.opentelemetry.io/otel v1.45.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.45.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.45.0 // indirect
 	go.opentelemetry.io/otel/trace v1.45.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/clickhouse v0.7.0 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.2 // indirect
 	gorm.io/gorm v1.31.2 // indirect
+	gorm.io/plugin/opentelemetry v0.1.16 // indirect
 )
 
 require (
 	filippo.io/edwards25519 v1.1.1 // indirect
-	github.com/bestHeCC/hecc-api v0.0.0
-	github.com/bestHeCC/hecc-cache v0.0.0
-	github.com/bestHeCC/hecc-core v0.0.0
-	github.com/bestHeCC/hecc-db v0.0.0
-	github.com/bestHeCC/hecc-error v0.0.0
-	github.com/bestHeCC/hecc-ioc v0.0.0
-	github.com/bestHeCC/hecc-log v0.0.0
-	github.com/bestHeCC/hecc-sse v0.0.0
-	github.com/bestHeCC/hecc-trace v0.0.0
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.1 // indirect
 	github.com/bytedance/sonic/loader v0.5.1 // indirect
@@ -59,6 +63,15 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
+	github.com/hecc-blot/hecc-blot-api v0.1.0
+	github.com/hecc-blot/hecc-blot-cache v0.1.0
+	github.com/hecc-blot/hecc-blot-core v0.1.0
+	github.com/hecc-blot/hecc-blot-db v0.1.0
+	github.com/hecc-blot/hecc-blot-error v0.1.0
+	github.com/hecc-blot/hecc-blot-ioc v0.1.0
+	github.com/hecc-blot/hecc-blot-log v0.1.0
+	github.com/hecc-blot/hecc-blot-sse v0.1.0
+	github.com/hecc-blot/hecc-blot-trace v0.1.0
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.10.0 // indirect
@@ -91,7 +104,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.45.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.11.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.22.0 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
@@ -105,22 +118,4 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 )
 
-replace github.com/bestHeCC/hecc-ioc => ./modules/ioc
-
 exclude google.golang.org/genproto v0.0.0-20210917145530-b395a37504d4
-
-replace github.com/bestHeCC/hecc-core => ./modules/core
-
-replace github.com/bestHeCC/hecc-api => ./modules/api
-
-replace github.com/bestHeCC/hecc-db => ./modules/db
-
-replace github.com/bestHeCC/hecc-cache => ./modules/cache
-
-replace github.com/bestHeCC/hecc-log => ./modules/log
-
-replace github.com/bestHeCC/hecc-trace => ./modules/trace
-
-replace github.com/bestHeCC/hecc-error => ./modules/error
-
-replace github.com/bestHeCC/hecc-sse => ./modules/sse

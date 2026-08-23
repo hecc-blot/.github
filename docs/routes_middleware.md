@@ -155,7 +155,7 @@ apiGroup.Post("account/add", &AddApi{})
 
 ### 1. 后端与算法
 
-限流器通过 `hecc-core/contract/ratelimit.RateLimiter` 接口抽象，两种后端：
+限流器通过 `hecc-blot-core/contract/ratelimit.RateLimiter` 接口抽象，两种后端：
 
 | 后端 | 构造方式 | 适用场景 |
 |------|---------|---------|
@@ -175,7 +175,7 @@ apiGroup.Post("account/add", &AddApi{})
 
 ```go
 import (
-    iCoreRatelimit "github.com/bestHeCC/hecc-core/contract/ratelimit"
+    iCoreRatelimit "github.com/hecc-blot/hecc-blot-core/contract/ratelimit"
 )
 
 // 内存后端（单实例）

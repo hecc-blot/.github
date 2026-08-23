@@ -319,7 +319,7 @@ type MyApi struct {
 
 ## 单测示例
 
-IOC 容器的单元测试见 `modules/ioc/ioc_svc_test.go`，演示了 `Container` 的 `Set`、`SetWithName`、`Inject` 方法的标准用法和验证方式。
+IOC 容器的单元测试见 `hecc-blot-ioc/ioc_svc_test.go`，演示了 `Container` 的 `Set`、`SetWithName`、`Inject` 方法的标准用法和验证方式。
 
 ***
 

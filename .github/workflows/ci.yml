@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build-and-test:
@@ -70,19 +70,10 @@ jobs:
           PGPASSWORD=123456 psql -h 127.0.0.1 -U admin -d core -c "SELECT setval(pg_get_serial_sequence('account', 'id'), (SELECT MAX(id) FROM account));"
 
       - name: Build
-        run: |
-          for m in example modules/*/; do
-            (cd "$m" && go build ./...)
-          done
+        run: go build ./...
 
       - name: Vet
-        run: |
-          for m in example modules/*/; do
-            (cd "$m" && go vet ./...)
-          done
+        run: go vet ./...
 
       - name: Test
-        run: |
-          for m in example modules/*/; do
-            (cd "$m" && go test ./...)
-          done
+        run: go test ./...

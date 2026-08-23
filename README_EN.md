@@ -1,9 +1,9 @@
 # Hecc-Blot
 
-[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/bestHeCC/Hecc-Blot)
+[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/bestHeCC/Hecc-Blot)
-[![Gitee](https://img.shields.io/badge/Gitee-Hecc--Blot-C71D23?logo=gitee&logoColor=white)](https://gitee.com/bestHeCC/Hecc-Blot)
+[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
+[![Gitee](https://img.shields.io/badge/Gitee-Hecc--Blot-C71D23?logo=gitee&logoColor=white)](https://gitee.com/hecc-blot/hecc-blot-guide)
 [![简体中文](https://img.shields.io/badge/简体中文-README-blue)](README.md)
 
 Hecc-Blot is a lightweight Go backend framework built around interface-oriented design, providing dependency injection, route registration, parameter validation, and unified responses.
@@ -34,25 +34,27 @@ go run .
 ## Project Layout
 
 ```
-├── modules/                # sub-modules (managed by go.work, monorepo multi-module)
-│   ├── ioc/                # dependency injection container (github.com/bestHeCC/hecc-ioc)
-│   ├── core/               # contract SDK (github.com/bestHeCC/hecc-core)
-│   │   ├── contract/       # interface contracts (api/cache/db/error/ioc/log/sse/trace)
-│   │   ├── entity/         # entities and config structs
-│   │   ├── enum/           # enums (env/db/response/trace)
-│   │   └── util/           # utilities (pagination, validation messages, context)
-│   ├── api/                # HTTP core (github.com/bestHeCC/hecc-api)
-│   ├── error/              # unified errors (github.com/bestHeCC/hecc-error)
-│   ├── sse/                # SSE push (github.com/bestHeCC/hecc-sse)
-│   ├── db/                 # MySQL / PostgreSQL (github.com/bestHeCC/hecc-db)
-│   ├── cache/              # local + Redis cache (github.com/bestHeCC/hecc-cache)
-│   ├── log/                # logging (github.com/bestHeCC/hecc-log)
-│   └── trace/              # OpenTelemetry tracing (github.com/bestHeCC/hecc-trace)
 ├── example/                # full usage example (go run ./example)
-├── docs/                   # documentation (currently in Chinese)
-├── go.work                 # workspace config
+├── docs/                   # per-module documentation (currently in Chinese)
+├── feature.md              # roadmap and optimization plan
 └── README.md
 ```
+
+> Each functional module lives in its own repository (see "Module Repositories" below) and is pulled in via `go get` — they are no longer part of this repo.
+
+## Module Repositories
+
+| Module | Responsibility | Repository |
+|--------|----------------|------------|
+| core | contract SDK (contract/entity/enum/util) | [hecc-blot-core](https://github.com/hecc-blot/hecc-blot-core) |
+| ioc | dependency injection container (zero deps) | [hecc-blot-ioc](https://github.com/hecc-blot/hecc-blot-ioc) |
+| api | HTTP core (routes + response + trace middleware) | [hecc-blot-api](https://github.com/hecc-blot/hecc-blot-api) |
+| error | unified errors | [hecc-blot-error](https://github.com/hecc-blot/hecc-blot-error) |
+| sse | SSE push | [hecc-blot-sse](https://github.com/hecc-blot/hecc-blot-sse) |
+| db | database (GORM MySQL/PostgreSQL) | [hecc-blot-db](https://github.com/hecc-blot/hecc-blot-db) |
+| cache | cache (local + Redis) | [hecc-blot-cache](https://github.com/hecc-blot/hecc-blot-cache) |
+| log | logging (Zap + SLS) | [hecc-blot-log](https://github.com/hecc-blot/hecc-blot-log) |
+| trace | tracing (OpenTelemetry) | [hecc-blot-trace](https://github.com/hecc-blot/hecc-blot-trace) |
 
 ## Documentation
 
@@ -152,7 +154,7 @@ If Hecc-Blot helps you, a ⭐️ is appreciated.
 
 ### Feedback & Contributing
 
-- **Bug reports and feature requests**: open an [Issue](https://github.com/bestHeCC/Hecc-Blot/issues)
+- **Bug reports and feature requests**: open an [Issue](https://github.com/hecc-blot/hecc-blot-guide/issues)
 - **Code contributions**: pull requests are welcome
 
 ### Credits

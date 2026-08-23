@@ -227,7 +227,7 @@ pgDB := dbFactory.Build(ctx, dbEnum.Postgres)
 
 ### 依赖关系
 
-db 模块**只依赖第三方** `gorm.io/plugin/opentelemetry` 插件，通过全局 `TracerProvider` 生成 span，**不依赖 hecc-trace 模块**，避免扩展间耦合。插件在 `NewDbFactory` 初始化时自动注册，业务代码无需任何改动。
+db 模块**只依赖第三方** `gorm.io/plugin/opentelemetry` 插件，通过全局 `TracerProvider` 生成 span，**不依赖 hecc-blot-trace 模块**，避免扩展间耦合。插件在 `NewDbFactory` 初始化时自动注册，业务代码无需任何改动。
 
 ### 初始化顺序
 
