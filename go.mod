@@ -63,13 +63,11 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
-	github.com/hecc-blot/api v0.1.0
 	github.com/hecc-blot/cache v0.1.0
-	github.com/hecc-blot/core v0.1.0
 	github.com/hecc-blot/db v0.1.0
-	github.com/hecc-blot/error v0.1.0
-	github.com/hecc-blot/ioc v0.1.0
-	github.com/hecc-blot/log v0.1.0
+	github.com/hecc-blot/framework v0.1.0
+	github.com/hecc-blot/log-sls v0.1.0
+	github.com/hecc-blot/ratelimit v0.1.0
 	github.com/hecc-blot/sse v0.1.0
 	github.com/hecc-blot/trace v0.1.0
 	github.com/jackc/pgpassfile v1.0.0 // indirect

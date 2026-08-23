@@ -151,18 +151,18 @@ apiGroup.Post("account/add", &AddApi{})
 
 ## 请求限流中间件
 
-框架提供 `RateLimitMiddleware`，按客户端 IP 限流，超限返回 `429` + 统一响应格式（`code=40006`「请求过于频繁」）。
+框架**不内置**限流中间件。限流能力由独立的 `ratelimit` 模块提供（接口契约 + 实现），中间件由业务方引入 `ratelimit` 模块后自行实现并显式注册——是否启用、按什么维度限流、返回什么响应，完全由业务方决定。
 
 ### 1. 后端与算法
 
-限流器通过 `hecc-blot-core/contract/ratelimit.RateLimiter` 接口抽象，两种后端：
+限流器通过 `github.com/hecc-blot/ratelimit/contract.RateLimiter` 接口抽象，两种后端：
 
 | 后端 | 构造方式 | 适用场景 |
 |------|---------|---------|
-| 内存 | `api.NewMemoryLimiter(cfg)` | 单实例 |
-| Redis | `cache.NewRedisLimiter(cacheFactory.Redis(), cfg)` | 集群（跨实例统一计数，Lua 原子，复用缓存 Redis 实例） |
+| 内存 | `ratelimitSvc.NewMemoryLimiter(cfg)` | 单实例 |
+| Redis | `ratelimitSvc.NewRedisLimiter(client, cfg)` | 集群（跨实例统一计数，Lua 原子） |
 
-内存后端支持两种算法（由 `cfg.Algorithm` 决定）：
+两种后端均支持两种算法（由 `cfg.Algorithm` 决定）：
 
 | 算法 | 值 | 说明 |
 |------|-----|------|
@@ -173,39 +173,63 @@ apiGroup.Post("account/add", &AddApi{})
 
 ### 2. 使用
 
+业务方自行实现中间件并注册（参考 `example/example.go`）：
+
 ```go
 import (
-    iCoreRatelimit "github.com/hecc-blot/core/contract/ratelimit"
+    ratelimitConfig "github.com/hecc-blot/ratelimit/config"
+    ratelimitContract "github.com/hecc-blot/ratelimit/contract"
+    algorithm "github.com/hecc-blot/ratelimit/enum/algorithm"
+    ratelimitSvc "github.com/hecc-blot/ratelimit/service"
 )
 
+// RateLimitMiddleware 请求限流中间件 — 业务方实现。
+type RateLimitMiddleware struct {
+    Limiter ratelimitContract.RateLimiter
+}
+
+func (r *RateLimitMiddleware) Middleware() any {
+    return func(c *gin.Context) {
+        if !r.Limiter.Allow(c.Request.Context(), c.ClientIP()) {
+            c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+                "code":    response.RateLimit,
+                "message": response.CodeMap[response.RateLimit],
+                "data":    nil,
+            })
+            return
+        }
+        c.Next()
+    }
+}
+
 // 内存后端（单实例）
-limiter := api.NewMemoryLimiter(iCoreRatelimit.Config{
-    Algorithm: iCoreRatelimit.SlidingWindow,
+limiter := ratelimitSvc.NewMemoryLimiter(ratelimitConfig.Config{
+    Algorithm: algorithm.SlidingWindow,
     Limit:     100, // 窗口内最大请求数
     Window:    60,  // 窗口时长（秒）
 })
-apiHandle.Middleware(api.NewRateLimitMiddleware(limiter))
+apiHandle.Middleware(&RateLimitMiddleware{Limiter: limiter})
 
-// Redis 后端（集群，复用 cacheFactory 的 Redis 实例）
-limiter = cache.NewRedisLimiter(cacheFactory.Redis(), iCoreRatelimit.Config{
-    Algorithm: iCoreRatelimit.SlidingWindow,
+// Redis 后端（集群，独立 Redis 连接，统一计数）
+client := redis.NewClient(&redis.Options{Addr: config.Cache.Redis.Addr, ...})
+limiter = ratelimitSvc.NewRedisLimiter(client, ratelimitConfig.Config{
+    Algorithm: algorithm.SlidingWindow,
     Limit:     100,
     Window:    60,
 })
-apiHandle.Middleware(api.NewRateLimitMiddleware(limiter))
+apiHandle.Middleware(&RateLimitMiddleware{Limiter: limiter})
 ```
 
 ### 3. 配置
 
-是否启用限流由组装层是否注册中间件决定（见上一节），配置仅描述启用后的后端/算法/阈值。
+限流配置由业务方自持有（不属框架 config），是否启用由组装层是否注册中间件决定，配置仅描述启用后的后端/算法/阈值。
 
 ```yaml
-server:
-  rate_limit:
-    backend: memory            # memory | redis
-    algorithm: sliding_window  # sliding_window | token_bucket
-    limit: 100                 # 窗口内最大请求数 / 桶容量
-    window: 60                 # 窗口时长（秒）
+rate_limit:
+  backend: memory            # memory | redis
+  algorithm: sliding_window  # sliding_window | token_bucket
+  limit: 100                 # 窗口内最大请求数 / 桶容量
+  window: 60                 # 窗口时长（秒）
 ```
 
 ***

@@ -12,11 +12,12 @@ server:
   write_timeout: 30   # 写入超时（秒），0 默认 30
   idle_timeout: 60    # 空闲超时（秒），0 默认 60
   body_size_limit: 10485760  # 请求体大小限制（字节），0 默认 10MB
-  rate_limit:
-    backend: memory            # memory | redis
-    algorithm: sliding_window  # sliding_window | token_bucket
-    limit: 100                 # 窗口内最大请求数 / 桶容量
-    window: 60                 # 窗口时长（秒）
+
+rate_limit:                  # 请求频率限流（业务方自持有，框架不内置）
+  backend: memory            # memory | redis
+  algorithm: sliding_window  # sliding_window | token_bucket
+  limit: 100                 # 窗口内最大请求数 / 桶容量
+  window: 60                 # 窗口时长（秒）
 
 db:
   mysql:
@@ -90,16 +91,6 @@ trace:
 | `write_timeout` | int | 否 | 写入响应超时（秒），0 默认 30 |
 | `idle_timeout` | int | 否 | 空闲连接超时（秒），0 默认 60 |
 | `body_size_limit` | int | 否 | 请求体最大字节数，0 默认 10MB |
-| `rate_limit` | object | 否 | 请求频率限流，是否启用由组装层是否注册中间件决定（见 [路由与中间件](routes_middleware.md)） |
-
-`rate_limit` 子配置项：
-
-| 配置项 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| `backend` | string | 否 | 后端：`memory`(默认) / `redis` |
-| `algorithm` | string | 否 | 算法：`sliding_window`(默认) / `token_bucket` |
-| `limit` | int | 否 | 窗口内最大请求数 / 令牌桶容量 |
-| `window` | int | 否 | 窗口时长（秒） |
 
 env 映射关系：
 
@@ -108,6 +99,17 @@ env 映射关系：
 | `dev` | DebugMode | 输出详细调试日志 |
 | `test` | TestMode | 测试模式 |
 | `product` | ReleaseMode | 生产模式，关闭调试输出 |
+
+### rate_limit
+
+请求频率限流配置，**业务方自持有**（框架不内置限流）。是否启用由组装层是否注册限流中间件决定（见 [路由与中间件](routes_middleware.md)），配置仅描述启用后的后端/算法/阈值。
+
+| 配置项 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| `backend` | string | 否 | 后端：`memory`(默认) / `redis` |
+| `algorithm` | string | 否 | 算法：`sliding_window`(默认) / `token_bucket` |
+| `limit` | int | 否 | 窗口内最大请求数 / 令牌桶容量 |
+| `window` | int | 否 | 窗口时长（秒） |
 
 ### db.mysql / db.postgres
 

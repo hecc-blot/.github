@@ -7,28 +7,33 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hecc-blot/api"
-	"github.com/hecc-blot/cache"
 	cacheContract "github.com/hecc-blot/cache/contract"
-	iCoreApi "github.com/hecc-blot/core/contract/api"
-	iCoreError "github.com/hecc-blot/core/contract/error"
-	iCoreRatelimit "github.com/hecc-blot/core/contract/ratelimit"
-	entityApi "github.com/hecc-blot/core/entity/api"
-	"github.com/hecc-blot/core/enum/response"
-	"github.com/hecc-blot/core/util"
-	"github.com/hecc-blot/db"
+	cache "github.com/hecc-blot/cache/service"
 	dbContract "github.com/hecc-blot/db/contract"
 	dbEnum "github.com/hecc-blot/db/enum/db"
-	errorSvc "github.com/hecc-blot/error"
-	"github.com/hecc-blot/log"
-	logContract "github.com/hecc-blot/log/contract"
-	"github.com/hecc-blot/sse"
+	db "github.com/hecc-blot/db/service"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
+	iCoreError "github.com/hecc-blot/framework/contract/error"
+	logContract "github.com/hecc-blot/framework/contract/log"
+	entityApi "github.com/hecc-blot/framework/entity/api"
+	"github.com/hecc-blot/framework/enum/response"
+	errorSvc "github.com/hecc-blot/framework/service/error"
+	httpSvc "github.com/hecc-blot/framework/service/http"
+	ioc "github.com/hecc-blot/framework/service/ioc"
+	log "github.com/hecc-blot/framework/service/log"
+	"github.com/hecc-blot/framework/util"
+	logsls "github.com/hecc-blot/log-sls/service"
+	ratelimitConfig "github.com/hecc-blot/ratelimit/config"
+	ratelimitContract "github.com/hecc-blot/ratelimit/contract"
+	algorithm "github.com/hecc-blot/ratelimit/enum/algorithm"
+	ratelimitSvc "github.com/hecc-blot/ratelimit/service"
 	sseContract "github.com/hecc-blot/sse/contract"
-	"github.com/hecc-blot/trace"
+	sse "github.com/hecc-blot/sse/service"
 	traceContract "github.com/hecc-blot/trace/contract"
+	trace "github.com/hecc-blot/trace/service"
 
-	"github.com/hecc-blot/ioc"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"gorm.io/plugin/soft_delete"
 )
@@ -40,12 +45,18 @@ import (
 func main() {
 	config := initConf("config.yaml")
 
-	logSvc := must(log.NewLogger(&config.Log))
+	// 日志：本地日志（默认）或 SLS（加强后端，见 log-sls 模块），由组装层按配置二选一
+	var logSvc logContract.ILog
+	if config.Log.Sls.Enable {
+		logSvc = must(logsls.NewLogger(&config.Log.Sls))
+	} else {
+		logSvc = must(log.NewLogger(&config.Log.Local))
+	}
 	traceSvc, traceClearUp := must2(trace.NewTraceSvc(&config.Trace))
 	dbFactory, dbClearUp := must2(db.NewDbFactory(&config.Db, logSvc))
 
 	cacheFactory := cache.NewCacheFactory(&config.Cache, traceSvc)
-	responseSvc := api.NewResponseSvc()
+	responseSvc := httpSvc.NewResponseSvc()
 
 	// defer 注册退出清理（LIFO 顺序执行）
 	defer func() {
@@ -65,11 +76,11 @@ func main() {
 	container.Set(new(iCoreApi.IResponse), responseSvc)
 	container.Set(new(traceContract.ITrace), traceSvc)
 
-	apiHandle := api.NewApiSvc(&config.Server, responseSvc, container)
+	apiHandle := httpSvc.NewApiSvc(&config.Server, responseSvc, container)
 	// 链路追踪：由组装层显式注册中间件（api 不感知 trace）
 	apiHandle.Middleware(trace.NewHttpMiddleware(traceSvc))
-	// 请求限流：组装层显式注册（是否启用由本行决定，配置只描述后端/算法/阈值）
-	apiHandle.Middleware(api.NewRateLimitMiddleware(newRateLimiter(config, cacheFactory)))
+	// 请求限流：业务方引入 ratelimit 模块后自行实现中间件并显式注册（是否启用由本行决定）
+	apiHandle.Middleware(&RateLimitMiddleware{Limiter: newRateLimiter(config)})
 	registerRoutes(apiHandle)
 
 	sseHandle := sse.NewSseSvc(apiHandle.Engine(), container)
@@ -112,18 +123,24 @@ func initConf(configPath string) *Config {
 	return &conf
 }
 
-// newRateLimiter 根据配置选择限流后端：backend=redis 复用 cacheFactory 的 Redis 实例
-// （集群统一计数），否则用内存限流（单实例）。算法由 config.Server.RateLimit.Algorithm 决定。
-func newRateLimiter(config *Config, cacheFactory cacheContract.ICacheFactory) iCoreRatelimit.RateLimiter {
-	cfg := iCoreRatelimit.Config{
-		Algorithm: iCoreRatelimit.Algorithm(config.Server.RateLimit.Algorithm),
-		Limit:     config.Server.RateLimit.Limit,
-		Window:    config.Server.RateLimit.Window,
+// newRateLimiter 根据配置选择限流后端：backend=redis 使用独立 redis 连接（集群统一计数），
+// 否则用内存限流（单实例）。算法由 config.RateLimit.Algorithm 决定。
+func newRateLimiter(config *Config) ratelimitContract.RateLimiter {
+	cfg := ratelimitConfig.Config{
+		Algorithm: algorithm.Algorithm(config.RateLimit.Algorithm),
+		Limit:     config.RateLimit.Limit,
+		Window:    config.RateLimit.Window,
 	}
-	if config.Server.RateLimit.Backend == "redis" {
-		return cache.NewRedisLimiter(cacheFactory.Redis(), cfg)
+	if config.RateLimit.Backend == "redis" {
+		client := redis.NewClient(&redis.Options{
+			Addr:     config.Cache.Redis.Addr,
+			Password: config.Cache.Redis.Password,
+			DB:       config.Cache.Redis.DB,
+			PoolSize: config.Cache.Redis.PoolSize,
+		})
+		return ratelimitSvc.NewRedisLimiter(client, cfg)
 	}
-	return api.NewMemoryLimiter(cfg)
+	return ratelimitSvc.NewMemoryLimiter(cfg)
 }
 
 // ===== 3. Model 定义 =====
@@ -202,6 +219,27 @@ func (t TokenMiddleware) Middleware() any {
 		}
 		// 实际项目可在此解析 JWT、查询用户信息等
 		c.Set("token", token)
+		c.Next()
+	}
+}
+
+// RateLimitMiddleware 请求限流中间件 — 业务方实现。
+// 演示：限流不在框架内置，业务方引入 ratelimit 模块后自行实现中间件，
+// 按客户端 IP 限流，超限返回 429 + 统一响应格式（code=40006）。
+type RateLimitMiddleware struct {
+	Limiter ratelimitContract.RateLimiter
+}
+
+func (r *RateLimitMiddleware) Middleware() any {
+	return func(c *gin.Context) {
+		if !r.Limiter.Allow(c.Request.Context(), c.ClientIP()) {
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"code":    response.RateLimit,
+				"message": response.CodeMap[response.RateLimit],
+				"data":    nil,
+			})
+			return
+		}
 		c.Next()
 	}
 }
