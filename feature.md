@@ -33,6 +33,6 @@
 
 ## 模块拆分状态
 
-已完成：9 个模块拆为独立仓库，挂在 GitHub 组织 `hecc-blot` 下（`github.com/hecc-blot/hecc-blot-{core,ioc,api,error,sse,db,cache,log,trace}`），已发布 v0.1.0。
+已完成：9 个模块拆为独立仓库，挂在 GitHub 组织 `hecc-blot` 下（`github.com/hecc-blot/{core,ioc,api,error,sse,db,cache,log,trace}`），已发布 v0.1.0。
 
 **依赖拓扑**（推送/升级顺序）：`core`/`ioc` 无内部依赖；`error`/`log`/`trace → core`；`sse → core+ioc`；`api → core+error+ioc`；`db → core+log`；`cache → core+trace`。

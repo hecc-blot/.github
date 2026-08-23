@@ -175,7 +175,7 @@ apiGroup.Post("account/add", &AddApi{})
 
 ```go
 import (
-    iCoreRatelimit "github.com/hecc-blot/hecc-blot-core/contract/ratelimit"
+    iCoreRatelimit "github.com/hecc-blot/core/contract/ratelimit"
 )
 
 // 内存后端（单实例）

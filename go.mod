@@ -1,4 +1,4 @@
-module github.com/hecc-blot/hecc-blot-guide
+module github.com/hecc-blot/guide
 
 go 1.26.1
 
@@ -63,15 +63,15 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
-	github.com/hecc-blot/hecc-blot-api v0.1.0
-	github.com/hecc-blot/hecc-blot-cache v0.1.0
-	github.com/hecc-blot/hecc-blot-core v0.1.0
-	github.com/hecc-blot/hecc-blot-db v0.1.0
-	github.com/hecc-blot/hecc-blot-error v0.1.0
-	github.com/hecc-blot/hecc-blot-ioc v0.1.0
-	github.com/hecc-blot/hecc-blot-log v0.1.0
-	github.com/hecc-blot/hecc-blot-sse v0.1.0
-	github.com/hecc-blot/hecc-blot-trace v0.1.0
+	github.com/hecc-blot/api v0.1.0
+	github.com/hecc-blot/cache v0.1.0
+	github.com/hecc-blot/core v0.1.0
+	github.com/hecc-blot/db v0.1.0
+	github.com/hecc-blot/error v0.1.0
+	github.com/hecc-blot/ioc v0.1.0
+	github.com/hecc-blot/log v0.1.0
+	github.com/hecc-blot/sse v0.1.0
+	github.com/hecc-blot/trace v0.1.0
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.10.0 // indirect

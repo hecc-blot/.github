@@ -1,8 +1,8 @@
 # Hecc-Blot
 
-[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
+[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/hecc-blot/guide)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
+[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/hecc-blot/guide)
 [![Gitee](https://img.shields.io/badge/Gitee-Hecc--Blot-C71D23?logo=gitee&logoColor=white)](https://gitee.com/hecc-blot/hecc-blot-guide)
 [![English](https://img.shields.io/badge/English-README_EN-blue)](README_EN.md)
 
@@ -46,15 +46,15 @@ go run .
 
 | 模块 | 职责 | 仓库 |
 |------|------|------|
-| core | 契约 SDK（contract/entity/enum/util） | [hecc-blot-core](https://github.com/hecc-blot/hecc-blot-core) |
-| ioc | 依赖注入容器（零依赖） | [hecc-blot-ioc](https://github.com/hecc-blot/hecc-blot-ioc) |
-| api | HTTP 内核（路由 + 响应 + trace 中间件） | [hecc-blot-api](https://github.com/hecc-blot/hecc-blot-api) |
-| error | 统一错误 | [hecc-blot-error](https://github.com/hecc-blot/hecc-blot-error) |
-| sse | SSE 推送 | [hecc-blot-sse](https://github.com/hecc-blot/hecc-blot-sse) |
-| db | 数据库（GORM MySQL/PostgreSQL） | [hecc-blot-db](https://github.com/hecc-blot/hecc-blot-db) |
-| cache | 缓存（本地 + Redis） | [hecc-blot-cache](https://github.com/hecc-blot/hecc-blot-cache) |
-| log | 日志（Zap + SLS） | [hecc-blot-log](https://github.com/hecc-blot/hecc-blot-log) |
-| trace | 链路追踪（OpenTelemetry） | [hecc-blot-trace](https://github.com/hecc-blot/hecc-blot-trace) |
+| core | 契约 SDK（contract/entity/enum/util） | [hecc-blot-core](https://github.com/hecc-blot/core) |
+| ioc | 依赖注入容器（零依赖） | [hecc-blot-ioc](https://github.com/hecc-blot/ioc) |
+| api | HTTP 内核（路由 + 响应 + trace 中间件） | [hecc-blot-api](https://github.com/hecc-blot/api) |
+| error | 统一错误 | [hecc-blot-error](https://github.com/hecc-blot/error) |
+| sse | SSE 推送 | [hecc-blot-sse](https://github.com/hecc-blot/sse) |
+| db | 数据库（GORM MySQL/PostgreSQL） | [hecc-blot-db](https://github.com/hecc-blot/db) |
+| cache | 缓存（本地 + Redis） | [hecc-blot-cache](https://github.com/hecc-blot/cache) |
+| log | 日志（Zap + SLS） | [hecc-blot-log](https://github.com/hecc-blot/log) |
+| trace | 链路追踪（OpenTelemetry） | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
 
 ## 文档索引
 
@@ -152,7 +152,7 @@ go run .
 
 ### 反馈与贡献
 
-- **Bug 反馈和功能建议**: 欢迎提交 [Issue](https://github.com/hecc-blot/hecc-blot-guide/issues)
+- **Bug 反馈和功能建议**: 欢迎提交 [Issue](https://github.com/hecc-blot/guide/issues)
 - **代码贡献**: 欢迎提交 Pull Request
 
 ### 致谢

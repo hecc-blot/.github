@@ -1,8 +1,8 @@
 # Hecc-Blot
 
-[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
+[![Go Version](https://img.shields.io/badge/Go-1.26.1-00ADD8?logo=go&logoColor=white)](https://github.com/hecc-blot/guide)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/hecc-blot/hecc-blot-guide)
+[![GitHub](https://img.shields.io/badge/GitHub-Hecc--Blot-181717?logo=github&logoColor=white)](https://github.com/hecc-blot/guide)
 [![Gitee](https://img.shields.io/badge/Gitee-Hecc--Blot-C71D23?logo=gitee&logoColor=white)](https://gitee.com/hecc-blot/hecc-blot-guide)
 [![简体中文](https://img.shields.io/badge/简体中文-README-blue)](README.md)
 
@@ -46,15 +46,15 @@ go run .
 
 | Module | Responsibility | Repository |
 |--------|----------------|------------|
-| core | contract SDK (contract/entity/enum/util) | [hecc-blot-core](https://github.com/hecc-blot/hecc-blot-core) |
-| ioc | dependency injection container (zero deps) | [hecc-blot-ioc](https://github.com/hecc-blot/hecc-blot-ioc) |
-| api | HTTP core (routes + response + trace middleware) | [hecc-blot-api](https://github.com/hecc-blot/hecc-blot-api) |
-| error | unified errors | [hecc-blot-error](https://github.com/hecc-blot/hecc-blot-error) |
-| sse | SSE push | [hecc-blot-sse](https://github.com/hecc-blot/hecc-blot-sse) |
-| db | database (GORM MySQL/PostgreSQL) | [hecc-blot-db](https://github.com/hecc-blot/hecc-blot-db) |
-| cache | cache (local + Redis) | [hecc-blot-cache](https://github.com/hecc-blot/hecc-blot-cache) |
-| log | logging (Zap + SLS) | [hecc-blot-log](https://github.com/hecc-blot/hecc-blot-log) |
-| trace | tracing (OpenTelemetry) | [hecc-blot-trace](https://github.com/hecc-blot/hecc-blot-trace) |
+| core | contract SDK (contract/entity/enum/util) | [hecc-blot-core](https://github.com/hecc-blot/core) |
+| ioc | dependency injection container (zero deps) | [hecc-blot-ioc](https://github.com/hecc-blot/ioc) |
+| api | HTTP core (routes + response + trace middleware) | [hecc-blot-api](https://github.com/hecc-blot/api) |
+| error | unified errors | [hecc-blot-error](https://github.com/hecc-blot/error) |
+| sse | SSE push | [hecc-blot-sse](https://github.com/hecc-blot/sse) |
+| db | database (GORM MySQL/PostgreSQL) | [hecc-blot-db](https://github.com/hecc-blot/db) |
+| cache | cache (local + Redis) | [hecc-blot-cache](https://github.com/hecc-blot/cache) |
+| log | logging (Zap + SLS) | [hecc-blot-log](https://github.com/hecc-blot/log) |
+| trace | tracing (OpenTelemetry) | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
 
 ## Documentation
 
@@ -154,7 +154,7 @@ If Hecc-Blot helps you, a ⭐️ is appreciated.
 
 ### Feedback & Contributing
 
-- **Bug reports and feature requests**: open an [Issue](https://github.com/hecc-blot/hecc-blot-guide/issues)
+- **Bug reports and feature requests**: open an [Issue](https://github.com/hecc-blot/guide/issues)
 - **Code contributions**: pull requests are welcome
 
 ### Credits

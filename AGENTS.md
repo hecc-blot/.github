@@ -14,19 +14,19 @@ Hecc-Blot 是一个基于 Go 的轻量级后端框架，核心理念是**面向�
 
 ## 2. 模块架构（独立仓库）
 
-框架已按功能拆分为独立 Go module，挂在 GitHub 组织 `hecc-blot` 下，通过 `go get github.com/hecc-blot/hecc-blot-xxx` 引入：
+框架已按功能拆分为独立 Go module，挂在 GitHub 组织 `hecc-blot` 下，通过 `go get github.com/hecc-blot/xxx` 引入：
 
 | 模块 | module path | 职责 |
 |------|-------------|------|
-| ioc | `github.com/hecc-blot/hecc-blot-ioc` | 依赖注入容器（仅标准库，零依赖） |
-| core | `github.com/hecc-blot/hecc-blot-core` | 契约 SDK（contract/entity/enum/util） |
-| api | `github.com/hecc-blot/hecc-blot-api` | HTTP 内核（路由 + 响应 + trace 中间件） |
-| error | `github.com/hecc-blot/hecc-blot-error` | 统一错误实现 |
-| sse | `github.com/hecc-blot/hecc-blot-sse` | SSE 推送 |
-| db | `github.com/hecc-blot/hecc-blot-db` | 数据库（GORM MySQL/PostgreSQL） |
-| cache | `github.com/hecc-blot/hecc-blot-cache` | 缓存（本地 + Redis） |
-| log | `github.com/hecc-blot/hecc-blot-log` | 日志（Zap + SLS） |
-| trace | `github.com/hecc-blot/hecc-blot-trace` | 链路追踪（OpenTelemetry） |
+| ioc | `github.com/hecc-blot/ioc` | 依赖注入容器（仅标准库，零依赖） |
+| core | `github.com/hecc-blot/core` | 契约 SDK（contract/entity/enum/util） |
+| api | `github.com/hecc-blot/api` | HTTP 内核（路由 + 响应 + trace 中间件） |
+| error | `github.com/hecc-blot/error` | 统一错误实现 |
+| sse | `github.com/hecc-blot/sse` | SSE 推送 |
+| db | `github.com/hecc-blot/db` | 数据库（GORM MySQL/PostgreSQL） |
+| cache | `github.com/hecc-blot/cache` | 缓存（本地 + Redis） |
+| log | `github.com/hecc-blot/log` | 日志（Zap + SLS） |
+| trace | `github.com/hecc-blot/trace` | 链路追踪（OpenTelemetry） |
 
 本仓库是框架的**伞仓（guide）**，只含 `example/`（使用示例）、`docs/`（文档）与路线图，不包含模块源码。
 
@@ -38,11 +38,11 @@ Hecc-Blot 是一个基于 Go 的轻量级后端框架，核心理念是**面向�
 
 | 模块路径 | 别名 | 示例 |
 |------|------|------|
-| `hecc-blot-core/contract/*` | `iCore*` | `iCoreApi "github.com/hecc-blot/hecc-blot-core/contract/api"` |
-| `hecc-blot-core/entity/config` | `coreConfig` | `coreConfig "github.com/hecc-blot/hecc-blot-core/entity/config"` |
-| `hecc-blot-core/entity/api` | `entityApi` | `entityApi "github.com/hecc-blot/hecc-blot-core/entity/api"` |
-| `hecc-blot-core/enum/*` | `*Enum` 或原包名 | `dbEnum`、`envEnum`；`"github.com/hecc-blot/hecc-blot-core/enum/response"` |
-| 实现模块（`hecc-blot-api`/`hecc-blot-error` 等） | 原包名，冲突时加后缀 | `errorSvc "github.com/hecc-blot/hecc-blot-error"` |
+| `hecc-blot-core/contract/*` | `iCore*` | `iCoreApi "github.com/hecc-blot/core/contract/api"` |
+| `hecc-blot-core/entity/config` | `coreConfig` | `coreConfig "github.com/hecc-blot/core/entity/config"` |
+| `hecc-blot-core/entity/api` | `entityApi` | `entityApi "github.com/hecc-blot/core/entity/api"` |
+| `hecc-blot-core/enum/*` | `*Enum` 或原包名 | `dbEnum`、`envEnum`；`"github.com/hecc-blot/core/enum/response"` |
+| 实现模块（`hecc-blot-api`/`hecc-blot-error` 等） | 原包名，冲突时加后缀 | `errorSvc "github.com/hecc-blot/error"` |
 
 接口命名：`I` 前缀（`IApi`、`IDb`、`ILog`、`ITrace`、`IError`、`ISse`、`IContainer`）。工厂/处理器接口为 `I*Factory`、`I*Handle`。
 

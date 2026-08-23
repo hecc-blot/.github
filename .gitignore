@@ -7,4 +7,3 @@ example/runtime/
 modules/db/runtime/
 modules/log/runtime/
 *.exe
-.claude/
