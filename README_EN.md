@@ -120,6 +120,8 @@ The `example/` entry point (`main.go`) plus the `demo/` subpackage (component ex
 | demo/trace.go | tracing: Span/SetAttribute/RecordError/sub-span | [trace](https://github.com/hecc-blot/trace) |
 | demo/paginator.go | pagination: offset + cursor | [framework](https://github.com/hecc-blot/framework) |
 | demo/sse.go | SSE: ISse interface, heartbeat, Writer write | [sse](https://github.com/hecc-blot/sse) |
+| demo/httpclient.go | HTTP client: NewHttpClient, Get/Post, retry & structured logging | [httpclient](https://github.com/hecc-blot/httpclient) |
+| demo/mq.go | message queue: Producer send, Consumer subscribe, delayed/ordered assertion | [mq](https://github.com/hecc-blot/mq) |
 
 ## Design Principles
 

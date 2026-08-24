@@ -13,7 +13,11 @@ import (
 	ioc "github.com/hecc-blot/framework/service/ioc"
 	log "github.com/hecc-blot/framework/service/log"
 	demo "github.com/hecc-blot/guide/example/demo"
+	httpClientContract "github.com/hecc-blot/httpclient/contract"
+	httpClientService "github.com/hecc-blot/httpclient/service"
 	logsls "github.com/hecc-blot/log-sls/service"
+	mqContract "github.com/hecc-blot/mq/contract"
+	mqService "github.com/hecc-blot/mq/service"
 	ratelimitConfig "github.com/hecc-blot/ratelimit/config"
 	ratelimitContract "github.com/hecc-blot/ratelimit/contract"
 	algorithm "github.com/hecc-blot/ratelimit/enum/algorithm"
@@ -22,6 +26,8 @@ import (
 	sse "github.com/hecc-blot/sse/service"
 	traceContract "github.com/hecc-blot/trace/contract"
 	trace "github.com/hecc-blot/trace/service"
+
+	"context"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
@@ -47,6 +53,9 @@ func main() {
 	cacheFactory := cache.NewCacheFactory(&config.Cache, traceSvc)
 	responseSvc := httpSvc.NewResponseSvc()
 
+	// HTTP 客户端：统一出站请求（内置重试 + 结构化日志 + 敏感头脱敏），无外部依赖
+	httpClient := httpClientService.NewHttpClient(config.HttpClient, logSvc)
+
 	// defer 注册退出清理（LIFO 顺序执行）
 	defer func() {
 		dbClearUp()
@@ -64,6 +73,18 @@ func main() {
 	container.Set(new(cacheContract.ICacheFactory), cacheFactory)
 	container.Set(new(iCoreApi.IResponse), responseSvc)
 	container.Set(new(traceContract.ITrace), traceSvc)
+	container.Set(new(httpClientContract.IHttpClient), httpClient)
+
+	// 消息队列：依赖 Kafka/NSQ broker，未配置时跳过（不影响其余示例启动）
+	if config.Mq.Driver != "" {
+		mqFactory, mqCleanup, err := mqService.NewMqFactory(&config.Mq, logSvc, traceSvc)
+		if err != nil {
+			logSvc.Warn(context.Background(), "MQ 未启用：broker 配置无效，跳过注册", "err", err)
+		} else {
+			container.Set(new(mqContract.IMqFactory), mqFactory)
+			defer mqCleanup()
+		}
+	}
 
 	apiHandle := httpSvc.NewApiSvc(&config.Server, responseSvc, container)
 	// 链路追踪：由组装层显式注册中间件（api 不感知 trace）
@@ -165,6 +186,12 @@ func registerRoutes(apiHandle iCoreApi.IApiHandle) {
 		// — 分页 —
 		apiGroup.Post("account/page", &demo.PageListApi{})
 		apiGroup.Post("account/cursor", &demo.CursorListApi{})
+
+		// — HTTP 客户端 —
+		apiGroup.Get("httpclient/demo", &demo.HttpClientDemoApi{})
+
+		// — 消息队列 —
+		apiGroup.Post("mq/demo", &demo.MqDemoApi{})
 	}
 }
 

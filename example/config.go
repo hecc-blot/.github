@@ -5,6 +5,8 @@ import (
 	dbConfig "github.com/hecc-blot/db/config"
 	serverConfig "github.com/hecc-blot/framework/config/http"
 	logConfig "github.com/hecc-blot/framework/config/log"
+	httpClientConfig "github.com/hecc-blot/httpclient/config"
+	mqConfig "github.com/hecc-blot/mq/config"
 	traceConfig "github.com/hecc-blot/trace/config"
 )
 
@@ -16,6 +18,10 @@ type Config struct {
 	RateLimit RateLimitConfig
 	Server    serverConfig.Config
 	Trace     traceConfig.Config
+	// HttpClient 统一出站 HTTP 客户端配置（可选，缺省使用默认超时/重试）
+	HttpClient httpClientConfig.Config
+	// Mq 消息队列配置（可选，Driver 为空则跳过 MQ 组装）
+	Mq mqConfig.Config
 }
 
 // LogConfig 日志配置聚合：本地日志（framework/log）与 SLS（log-sls）按需二选一。

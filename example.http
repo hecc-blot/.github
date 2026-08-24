@@ -99,3 +99,14 @@ Accept: text/event-stream
 Content-Type: application/json
 
 {}
+
+### 12. HTTP 客户端示例（GET + POST 到 httpbin，需可访问外网）
+GET http://localhost:9500/httpclient/demo
+Authorization: demo
+
+### 13. 消息队列示例（发送一条消息；需在 config.yaml 配置 mq 段）
+POST http://localhost:9500/mq/demo
+Content-Type: application/json
+Authorization: demo
+
+{}

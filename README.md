@@ -120,6 +120,8 @@ apiHandle.Listen(sseHandle.Shutdown)
 | demo/trace.go | 链路追踪：Span/SetAttribute/RecordError/子 Span | [trace](https://github.com/hecc-blot/trace) |
 | demo/paginator.go | 分页：Offset 分页 + 游标分页 | [framework](https://github.com/hecc-blot/framework) |
 | demo/sse.go | SSE 推送：ISse 接口、心跳、Writer 写入 | [sse](https://github.com/hecc-blot/sse) |
+| demo/httpclient.go | HTTP 客户端：NewHttpClient、Get/Post、重试与结构化日志 | [httpclient](https://github.com/hecc-blot/httpclient) |
+| demo/mq.go | 消息队列：Producer 发送、Consumer 订阅、延迟/顺序能力断言 | [mq](https://github.com/hecc-blot/mq) |
 
 ## 设计原则
 
