@@ -1,5 +1,5 @@
 # Hecc-Blot 框架 API 测试集合
-# 对应 example.go 的全部路由端点
+# 对应 example/ 目录示例的全部路由端点
 #
 # 端口：9500（见 config.yaml 的 server.port）
 # 说明：

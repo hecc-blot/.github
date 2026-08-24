@@ -24,7 +24,7 @@ Hecc-Blot 是一个基于 Go 语言的轻量级后端框架，采用面向接口
 
 ## 快速开始
 
-完整可运行示例见 [`example/example.go`](example/example.go)，按模块分节覆盖了框架全部功能。
+完整可运行示例见 [`example/`](example/)，组装入口在 `main.go`，各组件示例在 `demo/` 子包。
 
 ```bash
 cd example
@@ -35,6 +35,10 @@ go run .
 
 ```
 ├── example/                # 完整使用示例（go run ./example）
+│   ├── main.go             #   组装入口（package main）
+│   ├── config.go           #   配置结构
+│   └── demo/               #   各组件示例（package demo）
+├── example.http            # 全部路由端点的请求文件
 ├── feature.md              # 路线图与优化规划
 └── README.md
 ```
@@ -52,6 +56,8 @@ go run .
 | db | 数据库（GORM MySQL/PostgreSQL） | [hecc-blot-db](https://github.com/hecc-blot/db) |
 | cache | 缓存（本地 + Redis） | [hecc-blot-cache](https://github.com/hecc-blot/cache) |
 | trace | 链路追踪（OpenTelemetry） | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
+| httpclient | 统一 HTTP 客户端 | [hecc-blot-httpclient](https://github.com/hecc-blot/httpclient) |
+| mq | 消息队列（Kafka/NSQ） | [hecc-blot-mq](https://github.com/hecc-blot/mq) |
 
 ## 组装骨架
 
@@ -100,21 +106,20 @@ apiHandle.Listen(sseHandle.Shutdown)
 
 ## 示例代码导航
 
-`example/example.go` 按模块分为 11 节，可作为框架功能的活文档使用：
+`example/` 的组装入口（`main.go`）+ `demo/` 子包（各组件示例），可作为框架功能的活文档使用：
 
-| # | 章节 | 演示内容 | 详文 |
-|---|------|----------|------|
-| 1 | 启动入口 | main() 骨架：初始化→IOC→路由→启动 | [framework](https://github.com/hecc-blot/framework) |
-| 2 | 配置加载 | viper 读取 config.yaml | [framework](https://github.com/hecc-blot/framework) |
-| 3 | Model 定义 | IDbModel 接口、TableName、多 Model | [db](https://github.com/hecc-blot/db) |
-| 4 | 请求参数与校验 | binding tag、GetMessages() | [framework](https://github.com/hecc-blot/framework) |
-| 5 | 中间件 | Authorization 校验、inject 注入 | [framework](https://github.com/hecc-blot/framework) |
-| 6 | 数据库 CRUD | Add/Take/Find/Save/Remove/Count/事务 | [db](https://github.com/hecc-blot/db) |
-| 7 | 多数据库切换 | MySQL ↔ PostgreSQL 切换 | [db](https://github.com/hecc-blot/db) |
-| 8 | 缓存操作 | Local/Redis 读写删、Hash、读穿透 | [cache](https://github.com/hecc-blot/cache) |
-| 9 | 链路追踪 | Span/SetAttribute/RecordError/子Span | [trace](https://github.com/hecc-blot/trace) |
-| 10 | 分页 | Offset 分页 + 游标分页 | [framework](https://github.com/hecc-blot/framework) |
-| 11 | SSE 推送 | ISse 接口、心跳、Flusher 断言 | [sse](https://github.com/hecc-blot/sse) |
+| 文件 | 演示内容 | 详文 |
+|------|----------|------|
+| main.go | 组装入口：初始化 → IOC → 路由注册 → 启动 | [framework](https://github.com/hecc-blot/framework) |
+| config.go | 配置结构定义（Log/Db/Cache/Server/Trace/RateLimit） | [framework](https://github.com/hecc-blot/framework) |
+| demo/model.go | Model 定义：IDbModel 接口、TableName、多 Model | [db](https://github.com/hecc-blot/db) |
+| demo/validation.go | 请求参数与校验：binding tag、GetMessages() | [framework](https://github.com/hecc-blot/framework) |
+| demo/middleware.go | 中间件：Token 校验、限流、SSE Accept/CORS | [framework](https://github.com/hecc-blot/framework) · [ratelimit](https://github.com/hecc-blot/ratelimit) |
+| demo/db.go | 数据库 CRUD + 多数据库切换 | [db](https://github.com/hecc-blot/db) |
+| demo/cache.go | 缓存操作：Local/Redis 读写删、Hash、读穿透 | [cache](https://github.com/hecc-blot/cache) |
+| demo/trace.go | 链路追踪：Span/SetAttribute/RecordError/子 Span | [trace](https://github.com/hecc-blot/trace) |
+| demo/paginator.go | 分页：Offset 分页 + 游标分页 | [framework](https://github.com/hecc-blot/framework) |
+| demo/sse.go | SSE 推送：ISse 接口、心跳、Writer 写入 | [sse](https://github.com/hecc-blot/sse) |
 
 ## 设计原则
 

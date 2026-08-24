@@ -24,7 +24,7 @@ Hecc-Blot is a lightweight Go backend framework built around interface-oriented 
 
 ## Quick Start
 
-See [`example/example.go`](example/example.go) for a complete runnable example covering all features, organized by module.
+See [`example/`](example/) for a complete runnable example — entry point in `main.go`, component examples in the `demo/` subpackage.
 
 ```bash
 cd example
@@ -35,6 +35,10 @@ go run .
 
 ```
 ├── example/                # full usage example (go run ./example)
+│   ├── main.go             #   entry point (package main)
+│   ├── config.go           #   config structs
+│   └── demo/               #   component examples (package demo)
+├── example.http            # request file for all route endpoints
 ├── feature.md              # roadmap and optimization plan
 └── README.md
 ```
@@ -52,6 +56,8 @@ go run .
 | db | database (GORM MySQL/PostgreSQL) | [hecc-blot-db](https://github.com/hecc-blot/db) |
 | cache | cache (local + Redis) | [hecc-blot-cache](https://github.com/hecc-blot/cache) |
 | trace | tracing (OpenTelemetry) | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
+| httpclient | unified HTTP client | [hecc-blot-httpclient](https://github.com/hecc-blot/httpclient) |
+| mq | message queue (Kafka/NSQ) | [hecc-blot-mq](https://github.com/hecc-blot/mq) |
 
 ## Assembly Skeleton
 
@@ -100,21 +106,20 @@ See each module's repository README for full interface definitions, configuratio
 
 ## Example Walkthrough
 
-`example/example.go` is divided into 11 sections and serves as living documentation:
+The `example/` entry point (`main.go`) plus the `demo/` subpackage (component examples) serve as living documentation:
 
-| # | Section | Demonstrates | Details |
-|---|---------|--------------|---------|
-| 1 | Entry point | main() skeleton: init → IOC → routes → start | [framework](https://github.com/hecc-blot/framework) |
-| 2 | Config loading | viper reads config.yaml | [framework](https://github.com/hecc-blot/framework) |
-| 3 | Model definition | IDbModel interface, TableName, multiple models | [db](https://github.com/hecc-blot/db) |
-| 4 | Request & validation | binding tags, GetMessages() | [framework](https://github.com/hecc-blot/framework) |
-| 5 | Middleware | Authorization check, inject injection | [framework](https://github.com/hecc-blot/framework) |
-| 6 | Database CRUD | Add/Take/Find/Save/Remove/Count/transactions | [db](https://github.com/hecc-blot/db) |
-| 7 | Multi-database | MySQL ↔ PostgreSQL switching | [db](https://github.com/hecc-blot/db) |
-| 8 | Cache operations | Local/Redis read-write-delete, Hash, read-through | [cache](https://github.com/hecc-blot/cache) |
-| 9 | Tracing | Span/SetAttribute/RecordError/sub-span | [trace](https://github.com/hecc-blot/trace) |
-| 10 | Pagination | offset + cursor pagination | [framework](https://github.com/hecc-blot/framework) |
-| 11 | SSE | ISse interface, heartbeat, Flusher assertion | [sse](https://github.com/hecc-blot/sse) |
+| File | Demonstrates | Details |
+|------|--------------|---------|
+| main.go | entry point: init → IOC → route registration → start | [framework](https://github.com/hecc-blot/framework) |
+| config.go | config structs (Log/Db/Cache/Server/Trace/RateLimit) | [framework](https://github.com/hecc-blot/framework) |
+| demo/model.go | model definition: IDbModel, TableName, multiple models | [db](https://github.com/hecc-blot/db) |
+| demo/validation.go | request & validation: binding tags, GetMessages() | [framework](https://github.com/hecc-blot/framework) |
+| demo/middleware.go | middleware: token check, rate limiting, SSE Accept/CORS | [framework](https://github.com/hecc-blot/framework) · [ratelimit](https://github.com/hecc-blot/ratelimit) |
+| demo/db.go | database CRUD + multi-database switching | [db](https://github.com/hecc-blot/db) |
+| demo/cache.go | cache: Local/Redis read-write-delete, Hash, read-through | [cache](https://github.com/hecc-blot/cache) |
+| demo/trace.go | tracing: Span/SetAttribute/RecordError/sub-span | [trace](https://github.com/hecc-blot/trace) |
+| demo/paginator.go | pagination: offset + cursor | [framework](https://github.com/hecc-blot/framework) |
+| demo/sse.go | SSE: ISse interface, heartbeat, Writer write | [sse](https://github.com/hecc-blot/sse) |
 
 ## Design Principles
 
