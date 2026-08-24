@@ -26,7 +26,7 @@ Hecc-Blot 是一个基于 Go 的轻量级后端框架，核心理念是**面向�
 | cache | `github.com/hecc-blot/cache` | 缓存（本地 + Redis） |
 | trace | `github.com/hecc-blot/trace` | 链路追踪（OpenTelemetry） |
 
-本仓库是框架的**伞仓（guide）**，只含 `example/`（使用示例）、`docs/`（文档）与路线图，不包含模块源码。
+本仓库是框架的**伞仓（guide）**，只含 `example/`（使用示例）与路线图，不包含模块源码。各模块功能文档已下沉至各模块仓库的 README。
 
 依赖方向严格单向：`framework`/`ratelimit → 第三方`，`log-sls`/`sse`/`db`/`trace → framework`，`cache → framework+trace`。**禁止反向依赖**（framework 不得 import 实现模块，实现模块之间不得互相依赖具体实现）。
 
@@ -151,4 +151,4 @@ go build ./... && go test ./...
 
 `feature.md` 记录了 SSE 模块的待优化项（稳定性阶段已落地，剩余可运维/可接入/高性能/可观测阶段），是后续迭代的路标。改动 SSE 前先对照该文件，避免重复设计。
 
-更详细的分模块文档见 `docs/`（`quick_start.md`、`ioc_injection.md`、`routes_middleware.md`、`database.md`、`cache.md`、`logging.md`、`trace.md`、`sse.md`、`paginator.md`、`component_replacement.md`）。
+更详细的分模块文档见各模块仓库的 README（framework / ratelimit / log-sls / sse / db / cache / trace）。

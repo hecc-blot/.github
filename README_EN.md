@@ -6,7 +6,7 @@
 [![Gitee](https://img.shields.io/badge/Gitee-Hecc--Blot-C71D23?logo=gitee&logoColor=white)](https://gitee.com/hecc-blot/hecc-blot-guide)
 [![简体中文](https://img.shields.io/badge/简体中文-README-blue)](README.md)
 
-Hecc-Blot is a lightweight Go backend framework built around interface-oriented design, providing dependency injection, route registration, parameter validation, and unified responses.
+Hecc-Blot is a lightweight Go backend framework built around interface-oriented design, providing dependency injection, route registration, parameter validation, and unified responses. This repository is the **assembly entry point**; each functional module lives in its own repository and is pulled in via `go get`.
 
 ## Features
 
@@ -35,18 +35,17 @@ go run .
 
 ```
 ├── example/                # full usage example (go run ./example)
-├── docs/                   # per-module documentation (currently in Chinese)
 ├── feature.md              # roadmap and optimization plan
 └── README.md
 ```
 
-> Each functional module lives in its own repository (see "Module Repositories" below) and is pulled in via `go get` — they are no longer part of this repo.
+> Each functional module lives in its own repository (see "Module Repositories" below) and is pulled in via `go get` — they are no longer part of this repo. Each module's interface definitions, usage, and configuration are documented in its own repository README.
 
 ## Module Repositories
 
 | Module | Responsibility | Repository |
 |--------|----------------|------------|
-| framework | framework core (contracts + IOC container + HTTP kernel + unified errors + local logging) | [hecc-blot-framework](https://github.com/hecc-blot/framework) |
+| framework | framework core (contracts + IOC container + HTTP kernel + unified errors + local logging + pagination) | [hecc-blot-framework](https://github.com/hecc-blot/framework) |
 | ratelimit | rate limiting (in-memory + Redis, sliding window / token bucket) | [hecc-blot-ratelimit](https://github.com/hecc-blot/ratelimit) |
 | log-sls | logging (Alibaba Cloud SLS) | [hecc-blot-log-sls](https://github.com/hecc-blot/log-sls) |
 | sse | SSE push | [hecc-blot-sse](https://github.com/hecc-blot/sse) |
@@ -54,87 +53,68 @@ go run .
 | cache | cache (local + Redis) | [hecc-blot-cache](https://github.com/hecc-blot/cache) |
 | trace | tracing (OpenTelemetry) | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
 
-## Documentation
+## Assembly Skeleton
 
-> **Note**: the docs under `docs/` are currently written in Chinese.
+Modules are wired together through interface contracts and the IOC container. A minimal runnable entry point looks like:
 
-### Example Walkthrough
+```go
+config := initConf("config.yaml")
+
+// Logging: local (framework) or SLS (log-sls), chosen by config
+var logSvc logContract.ILog
+if config.Log.Sls.Enable {
+    logSvc = must(logsls.NewLogger(&config.Log.Sls))
+} else {
+    logSvc = must(log.NewLogger(&config.Log.Local))
+}
+
+traceSvc, traceClearUp := must2(trace.NewTraceSvc(&config.Trace))
+dbFactory, dbClearUp := must2(db.NewDbFactory(&config.Db, logSvc))
+cacheFactory := cache.NewCacheFactory(&config.Cache, traceSvc)
+responseSvc := httpSvc.NewResponseSvc()
+defer func() { dbClearUp(); traceClearUp() }()
+
+// Register with the IOC container
+container := ioc.New()
+container.Set(new(dbContract.IDbFactory), dbFactory)
+container.Set(new(logContract.ILog), logSvc)
+container.Set(new(cacheContract.ICacheFactory), cacheFactory)
+container.Set(new(iCoreApi.IResponse), responseSvc)
+container.Set(new(traceContract.ITrace), traceSvc)
+
+// Create the API handler and register middleware / routes
+apiHandle := httpSvc.NewApiSvc(&config.Server, responseSvc, container)
+apiHandle.Middleware(trace.NewHttpMiddleware(traceSvc))
+apiHandle.Middleware(&RateLimitMiddleware{}) // implemented by you via ratelimit
+registerRoutes(apiHandle)
+
+// SSE shares the API engine
+sseHandle := sse.NewSseSvc(apiHandle.Engine(), container)
+sseHandle.Middleware(trace.NewSseMiddleware(traceSvc))
+registerSseRoutes(sseHandle)
+
+apiHandle.Listen(sseHandle.Shutdown)
+```
+
+See each module's repository README for full interface definitions, configuration options, and usage examples.
+
+## Example Walkthrough
 
 `example/example.go` is divided into 11 sections and serves as living documentation:
 
 | # | Section | Demonstrates | Details |
 |---|---------|--------------|---------|
-| 1 | Entry point | main() skeleton: init → IOC → routes → start | [Quick Start](docs/quick_start.md) |
-| 2 | Config loading | viper reads config.yaml | [Config](docs/config.md) |
-| 3 | Model definition | IDbModel interface, TableName, multiple models | [Database](docs/database.md) |
-| 4 | Request & validation | binding tags, GetMessages() | [Routes & Middleware](docs/routes_middleware.md) |
-| 5 | Middleware | Authorization check, inject injection | [Routes & Middleware](docs/routes_middleware.md) |
-| 6 | Database CRUD | Add/Take/Find/Save/Remove/Count/transactions | [Database](docs/database.md) |
-| 7 | Multi-database | MySQL ↔ PostgreSQL switching | [Database](docs/database.md) |
-| 8 | Cache operations | Local/Redis read-write-delete, Hash, read-through | [Cache](docs/cache.md) |
-| 9 | Tracing | Span/SetAttribute/RecordError/sub-span | [Tracing](docs/trace.md) |
-| 10 | Pagination | offset + cursor pagination | [Pagination](docs/paginator.md) |
-| 11 | SSE | ISse interface, heartbeat, Flusher assertion | [SSE](docs/sse.md) |
-
-### Getting Started
-
-| Doc | Description |
-|-----|-------------|
-| [Quick Start Guide](docs/quick_start.md) | full tutorial for building a project from scratch |
-| [Config Reference](docs/config.md) | all config.yaml options |
-
-### Core Mechanisms
-
-| Doc | Description |
-|-----|-------------|
-| [Routes & Middleware](docs/routes_middleware.md) | route registration, middleware, auto-validation, response wrapping |
-| [IOC Injection](docs/ioc_injection.md) | injection principles, rules, named injection |
-| [Component Replacement](docs/component_replacement.md) | full examples of swapping log/db/cache components |
-
-### Component Usage
-
-| Doc | Description |
-|-----|-------------|
-| [Logging](docs/logging.md) | local file logging, Alibaba Cloud SLS |
-| [Database](docs/database.md) | CRUD, transactions, multi-database, model definition |
-| [Cache](docs/cache.md) | local cache, Redis, expiry cleanup, tracing integration |
-| [Tracing](docs/trace.md) | OpenTelemetry integration, span operations, cross-service propagation |
-| [SSE](docs/sse.md) | SSE usage, route registration, middleware reuse, error handling |
-| [Pagination](docs/paginator.md) | offset/limit and cursor pagination |
-
-## Component Overview
-
-### IOC Container
-
-Auto-inject dependencies via the `inject:""` tag — no manual wiring. → [IOC Injection](docs/ioc_injection.md)
-
-### API Service
-
-Routes automatically perform binding, validation and response wrapping. → [Routes & Middleware](docs/routes_middleware.md)
-
-### Database Service
-
-MySQL and PostgreSQL support, chainable queries, transactions. → [Database](docs/database.md)
-
-### Cache Service
-
-In-memory + Redis two-tier cache with Hash operations and read-through. → [Cache](docs/cache.md)
-
-### Logging Service
-
-Local file logging (Zap + lumberjack rotation) and Alibaba Cloud SLS. → [Logging](docs/logging.md)
-
-### Tracing
-
-OpenTelemetry-based, auto-traces HTTP requests and correlates logs. → [Tracing](docs/trace.md)
-
-### SSE Real-time Push
-
-Shares the API port and pushes from the server via the `ISse` interface. → [SSE](docs/sse.md)
-
-### Pagination
-
-Offset/limit and cursor pagination. → [Pagination](docs/paginator.md)
+| 1 | Entry point | main() skeleton: init → IOC → routes → start | [framework](https://github.com/hecc-blot/framework) |
+| 2 | Config loading | viper reads config.yaml | [framework](https://github.com/hecc-blot/framework) |
+| 3 | Model definition | IDbModel interface, TableName, multiple models | [db](https://github.com/hecc-blot/db) |
+| 4 | Request & validation | binding tags, GetMessages() | [framework](https://github.com/hecc-blot/framework) |
+| 5 | Middleware | Authorization check, inject injection | [framework](https://github.com/hecc-blot/framework) |
+| 6 | Database CRUD | Add/Take/Find/Save/Remove/Count/transactions | [db](https://github.com/hecc-blot/db) |
+| 7 | Multi-database | MySQL ↔ PostgreSQL switching | [db](https://github.com/hecc-blot/db) |
+| 8 | Cache operations | Local/Redis read-write-delete, Hash, read-through | [cache](https://github.com/hecc-blot/cache) |
+| 9 | Tracing | Span/SetAttribute/RecordError/sub-span | [trace](https://github.com/hecc-blot/trace) |
+| 10 | Pagination | offset + cursor pagination | [framework](https://github.com/hecc-blot/framework) |
+| 11 | SSE | ISse interface, heartbeat, Flusher assertion | [sse](https://github.com/hecc-blot/sse) |
 
 ## Design Principles
 

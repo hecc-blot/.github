@@ -40,7 +40,7 @@ import (
 
 // ===== 1. 启动入口 =====
 // 演示：框架初始化全流程 — 配置 → 日志 → 追踪 → 数据库 → 缓存 → IOC → 路由 → 启动
-// 详见：docs/quick_start.md
+// 详见：README.md（组装骨架）
 
 func main() {
 	config := initConf("config.yaml")
@@ -108,7 +108,7 @@ func must2[T, U any](val T, cleanup U, err error) (T, U) {
 
 // ===== 2. 配置加载 =====
 // 演示：使用 viper 读取 config.yaml，反序列化为 config.Config 结构体
-// 详见：docs/config.md
+// 详见：github.com/hecc-blot/framework
 
 func initConf(configPath string) *Config {
 	v := viper.New()
@@ -145,7 +145,7 @@ func newRateLimiter(config *Config) ratelimitContract.RateLimiter {
 
 // ===== 3. Model 定义 =====
 // 演示：实现 IDbModel 接口（GetID），定义表名（TableName），支持多 Model
-// 详见：docs/database.md
+// 详见：github.com/hecc-blot/db
 
 // AccountModel 账户模型
 type AccountModel struct {
@@ -178,7 +178,7 @@ func (o OrderModel) GetID() int { return o.ID }
 
 // ===== 4. 请求参数与校验 =====
 // 演示：binding tag 自动校验（required/min/max/email）、自定义错误信息 GetMessages()
-// 详见：docs/routes_middleware.md
+// 详见：github.com/hecc-blot/framework
 
 // AddAccountRequest 新增账户 — 展示多种校验规则
 type AddAccountRequest struct {
@@ -202,7 +202,7 @@ func (a AddAccountRequest) GetMessages() entityApi.Messages {
 
 // ===== 5. 中间件 =====
 // 演示：定义 Token 校验中间件，中间件中通过 inject tag 注入依赖
-// 详见：docs/routes_middleware.md
+// 详见：github.com/hecc-blot/framework
 
 // TokenMiddleware Token 鉴权中间件
 type TokenMiddleware struct {
@@ -278,7 +278,7 @@ func (m SseCorsMiddleware) Middleware() any {
 
 // ===== 6. 数据库 CRUD =====
 // 演示：Add / Take / Find / Select / Save / Remove / Order / Count + 事务 Begin/Commit/Rollback
-// 详见：docs/database.md
+// 详见：github.com/hecc-blot/db
 
 // AddAccountApi 新增账户 + 事务演示
 type AddAccountApi struct {
@@ -391,7 +391,7 @@ func (a DeleteAccountApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError
 
 // ===== 7. 多数据库切换 =====
 // 演示：SetDefault() 切换默认库、Build(ctx, dbEnum.xxx) 运行时指定数据库
-// 详见：docs/database.md
+// 详见：github.com/hecc-blot/db
 
 // DbSwitchApi 多数据库切换 — 展示同时操作 MySQL 和 PostgreSQL
 type DbSwitchApi struct {
@@ -427,7 +427,7 @@ func (a DbSwitchApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
 
 // ===== 8. 缓存操作 =====
 // 演示：本地缓存 + Redis 缓存的 Get/Set/Del/Exists、Redis Hash 操作、缓存穿透回写
-// 详见：docs/cache.md
+// 详见：github.com/hecc-blot/cache
 
 // CacheBasicApi 缓存基础操作
 type CacheBasicApi struct {
@@ -503,7 +503,7 @@ func (a CacheReadThroughApi) Call(ctx *gin.Context) (interface{}, iCoreError.IEr
 
 // ===== 9. 链路追踪 =====
 // 演示：FromContext / SetAttribute / RecordError / Start 子 Span / defer span.End()
-// 详见：docs/trace.md
+// 详见：github.com/hecc-blot/trace
 
 // TraceDemoApi 链路追踪示例
 type TraceDemoApi struct {
@@ -540,7 +540,7 @@ func (a TraceDemoApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
 
 // ===== 10. 分页 =====
 // 演示：Offset/limit 分页（NewPage）+ 游标分页（NewCursor）
-// 详见：docs/paginator.md
+// 详见：github.com/hecc-blot/framework
 
 // PageRequest offset 分页请求参数
 type PageRequest struct {
@@ -604,7 +604,7 @@ func (a CursorListApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
 
 // ===== 11. SSE 推送 =====
 // 演示：ISse 接口 + Writer 写入抽象（心跳、Flusher 断言由框架处理）
-// 详见：docs/sse.md
+// 详见：github.com/hecc-blot/sse
 
 // ExampleSse SSE 实时推送示例
 type ExampleSse struct {
