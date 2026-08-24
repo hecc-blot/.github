@@ -39,7 +39,6 @@ go run .
 │   ├── config.go           #   config structs
 │   └── demo/               #   component examples (package demo)
 ├── example.http            # request file for all route endpoints
-├── feature.md              # roadmap and optimization plan
 └── README.md
 ```
 
@@ -128,10 +127,6 @@ The `example/` entry point (`main.go`) plus the `demo/` subpackage (component ex
 1. **Dependency inversion**: high-level modules depend on abstractions, not concrete implementations
 2. **Interface segregation**: each interface defines a single responsibility
 3. **Open/closed principle**: open for extension, closed for modification
-
-## Roadmap
-
-See [feature.md](feature.md) for the framework's optimization plan.
 
 ## Thanks
 

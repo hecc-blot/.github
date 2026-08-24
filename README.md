@@ -39,7 +39,6 @@ go run .
 │   ├── config.go           #   配置结构
 │   └── demo/               #   各组件示例（package demo）
 ├── example.http            # 全部路由端点的请求文件
-├── feature.md              # 路线图与优化规划
 └── README.md
 ```
 
@@ -128,10 +127,6 @@ apiHandle.Listen(sseHandle.Shutdown)
 1. **依赖倒置**: 高层模块依赖抽象接口，而非具体实现
 2. **接口隔离**: 每个接口只定义单一职责
 3. **开闭原则**: 对扩展开放，对修改关闭
-
-## 路线图
-
-框架的优化规划，详见 [feature.md](feature.md)。
 
 ## 感谢
 
