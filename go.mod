@@ -4,6 +4,7 @@ go 1.26.1
 
 require (
 	github.com/gin-gonic/gin v1.12.0
+	github.com/redis/go-redis/v9 v9.22.0
 	github.com/spf13/viper v1.21.0
 	gorm.io/plugin/soft_delete v1.2.1
 )
@@ -13,18 +14,17 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0 // indirect
 	github.com/aliyun/aliyun-log-go-sdk v0.1.126 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-playground/validator/v10 v10.30.2 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
-	github.com/redis/go-redis/v9 v9.22.0 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	go.opentelemetry.io/otel v1.45.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.45.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.45.0 // indirect
 	go.opentelemetry.io/otel/trace v1.45.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
@@ -43,7 +43,6 @@ require (
 	github.com/bytedance/sonic v1.15.1 // indirect
 	github.com/bytedance/sonic/loader v0.5.1 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
-	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
@@ -62,14 +61,13 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
-	github.com/hecc-blot/cache v0.1.0
-	github.com/hecc-blot/db v0.1.0
-	github.com/hecc-blot/framework v0.1.0
-	github.com/hecc-blot/log-sls v0.1.0
-	github.com/hecc-blot/ratelimit v0.1.0
-	github.com/hecc-blot/sse v0.1.0
-	github.com/hecc-blot/trace v0.1.0
+	github.com/hecc-blot/cache v0.0.0-20260823155820-13077b80b85f
+	github.com/hecc-blot/db v0.0.0-20260823155819-f836b3227e12
+	github.com/hecc-blot/framework v0.0.0-20260823164826-ad664e136852
+	github.com/hecc-blot/log-sls v0.0.0-20260823165140-d58b172ae2c1
+	github.com/hecc-blot/ratelimit v0.0.0-20260823155754-270fde5454af
+	github.com/hecc-blot/sse v0.0.0-20260823155819-58c95b9ca4e4
+	github.com/hecc-blot/trace v0.0.0-20260823155820-85e0a11c617e
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.10.0 // indirect
@@ -98,9 +96,7 @@ require (
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.45.0 // indirect
 	go.opentelemetry.io/otel/metric v1.45.0 // indirect
-	go.opentelemetry.io/proto/otlp v1.11.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
@@ -110,9 +106,6 @@ require (
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d // indirect
-	google.golang.org/grpc v1.83.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
 
