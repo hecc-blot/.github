@@ -15,9 +15,14 @@ import (
 	demo "github.com/hecc-blot/guide/example/demo"
 	httpClientContract "github.com/hecc-blot/httpclient/contract"
 	httpClientService "github.com/hecc-blot/httpclient/service"
+	idempotentContract "github.com/hecc-blot/idempotent/contract"
+	idempotentService "github.com/hecc-blot/idempotent/service"
 	lockContract "github.com/hecc-blot/lock/contract"
 	lockService "github.com/hecc-blot/lock/service"
 	logsls "github.com/hecc-blot/log-sls/service"
+	metricsConfig "github.com/hecc-blot/metrics/config"
+	metricsContract "github.com/hecc-blot/metrics/contract"
+	metrics "github.com/hecc-blot/metrics/service"
 	mqContract "github.com/hecc-blot/mq/contract"
 	mqService "github.com/hecc-blot/mq/service"
 	ratelimitConfig "github.com/hecc-blot/ratelimit/config"
@@ -32,6 +37,7 @@ import (
 
 	"context"
 
+	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 )
@@ -58,6 +64,10 @@ func main() {
 
 	// HTTP 客户端：统一出站请求（内置重试 + 结构化日志 + 敏感头脱敏），无外部依赖
 	httpClient := httpClientService.NewHttpClient(config.HttpClient, logSvc)
+
+	// 监控指标：Prometheus 采集端点 + 请求 QPS/延迟/错误率中间件（无外部依赖）
+	metricsCfg := metricsConfig.Normalize(config.Metrics)
+	metricsSvc := metrics.NewMetrics(&metricsCfg)
 
 	// 定时任务：cron 调度器，覆盖超时处理/周期对账/批量清理（无外部依赖，配置无效时跳过）
 	schedulerSvc, err := scheduler.NewScheduler(&config.Scheduler, logSvc, traceSvc, nil)
@@ -87,9 +97,13 @@ func main() {
 	container.Set(new(iCoreApi.IResponse), responseSvc)
 	container.Set(new(traceContract.ITrace), traceSvc)
 	container.Set(new(httpClientContract.IHttpClient), httpClient)
+	container.Set(new(metricsContract.IMetrics), metricsSvc)
 
 	// 分布式锁：按需加载，复用 cache 的 redis 连接（IRedisCache 已实现 SetNX/Eval 原子原语）
 	container.Set(new(lockContract.ILocker), lockService.NewRedisLocker(cacheFactory.Redis()))
+
+	// 幂等：按需加载，复用 cache 的 redis 连接（IRedisCache 已实现 SetNX/Get/Eval 原子原语）
+	container.Set(new(idempotentContract.IIdempotent), idempotentService.NewRedisIdempotent(cacheFactory.Redis()))
 
 	// 消息队列：依赖 Kafka/NSQ broker，未配置时跳过（不影响其余示例启动）
 	if config.Mq.Driver != "" {
@@ -105,6 +119,10 @@ func main() {
 	apiHandle := httpSvc.NewApiSvc(&config.Server, responseSvc, container)
 	// 链路追踪：由组装层显式注册中间件（api 不感知 trace）
 	apiHandle.Middleware(trace.NewHttpMiddleware(traceSvc))
+	// 监控指标：自动采集 QPS/延迟/错误率（path 用路由模板避免高基数）
+	apiHandle.Middleware(metrics.NewHttpMiddleware(metricsSvc))
+	// Prometheus 采集端点
+	apiHandle.Engine().GET(metricsCfg.Path, gin.WrapH(metricsSvc.Handler()))
 	// 请求限流：业务方引入 ratelimit 模块后自行实现中间件并显式注册（是否启用由本行决定）
 	apiHandle.Middleware(&demo.RateLimitMiddleware{Limiter: newRateLimiter(config)})
 	registerRoutes(apiHandle)
@@ -211,6 +229,9 @@ func registerRoutes(apiHandle iCoreApi.IApiHandle) {
 
 		// — 分布式锁 —
 		apiGroup.Get("lock/demo", &demo.LockDemoApi{})
+
+		// — 幂等 —
+		apiGroup.Get("idempotent/demo", &demo.IdempotentDemoApi{})
 	}
 }
 

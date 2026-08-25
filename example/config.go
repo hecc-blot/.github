@@ -7,6 +7,7 @@ import (
 	logConfig "github.com/hecc-blot/framework/config/log"
 	httpClientConfig "github.com/hecc-blot/httpclient/config"
 	mqConfig "github.com/hecc-blot/mq/config"
+	metricsConfig "github.com/hecc-blot/metrics/config"
 	schedulerConfig "github.com/hecc-blot/scheduler/config"
 	traceConfig "github.com/hecc-blot/trace/config"
 )
@@ -25,6 +26,8 @@ type Config struct {
 	Mq mqConfig.Config
 	// Scheduler 定时任务调度器配置（可选，缺省使用本地时区、禁止重叠执行）
 	Scheduler schedulerConfig.Config
+	// Metrics 监控指标配置（可选，缺省端点 /metrics、无命名空间前缀）
+	Metrics metricsConfig.Config
 }
 
 // LogConfig 日志配置聚合：本地日志（framework/log）与 SLS（log-sls）按需二选一。
