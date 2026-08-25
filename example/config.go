@@ -7,6 +7,7 @@ import (
 	logConfig "github.com/hecc-blot/framework/config/log"
 	httpClientConfig "github.com/hecc-blot/httpclient/config"
 	mqConfig "github.com/hecc-blot/mq/config"
+	schedulerConfig "github.com/hecc-blot/scheduler/config"
 	traceConfig "github.com/hecc-blot/trace/config"
 )
 
@@ -22,6 +23,8 @@ type Config struct {
 	HttpClient httpClientConfig.Config
 	// Mq 消息队列配置（可选，Driver 为空则跳过 MQ 组装）
 	Mq mqConfig.Config
+	// Scheduler 定时任务调度器配置（可选，缺省使用本地时区、禁止重叠执行）
+	Scheduler schedulerConfig.Config
 }
 
 // LogConfig 日志配置聚合：本地日志（framework/log）与 SLS（log-sls）按需二选一。

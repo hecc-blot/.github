@@ -15,6 +15,8 @@ import (
 	demo "github.com/hecc-blot/guide/example/demo"
 	httpClientContract "github.com/hecc-blot/httpclient/contract"
 	httpClientService "github.com/hecc-blot/httpclient/service"
+	lockContract "github.com/hecc-blot/lock/contract"
+	lockService "github.com/hecc-blot/lock/service"
 	logsls "github.com/hecc-blot/log-sls/service"
 	mqContract "github.com/hecc-blot/mq/contract"
 	mqService "github.com/hecc-blot/mq/service"
@@ -22,6 +24,7 @@ import (
 	ratelimitContract "github.com/hecc-blot/ratelimit/contract"
 	algorithm "github.com/hecc-blot/ratelimit/enum/algorithm"
 	ratelimitSvc "github.com/hecc-blot/ratelimit/service"
+	scheduler "github.com/hecc-blot/scheduler/service"
 	sseContract "github.com/hecc-blot/sse/contract"
 	sse "github.com/hecc-blot/sse/service"
 	traceContract "github.com/hecc-blot/trace/contract"
@@ -56,6 +59,16 @@ func main() {
 	// HTTP 客户端：统一出站请求（内置重试 + 结构化日志 + 敏感头脱敏），无外部依赖
 	httpClient := httpClientService.NewHttpClient(config.HttpClient, logSvc)
 
+	// 定时任务：cron 调度器，覆盖超时处理/周期对账/批量清理（无外部依赖，配置无效时跳过）
+	schedulerSvc, err := scheduler.NewScheduler(&config.Scheduler, logSvc, traceSvc, nil)
+	if err != nil {
+		logSvc.Warn(context.Background(), "调度器未启用：配置无效，跳过", "err", err)
+	} else {
+		_ = schedulerSvc.Add("cleanup", "0 */5 * * * *", demo.NewCleanupJob(logSvc))
+		schedulerSvc.Start()
+		defer schedulerSvc.Stop()
+	}
+
 	// defer 注册退出清理（LIFO 顺序执行）
 	defer func() {
 		dbClearUp()
@@ -74,6 +87,9 @@ func main() {
 	container.Set(new(iCoreApi.IResponse), responseSvc)
 	container.Set(new(traceContract.ITrace), traceSvc)
 	container.Set(new(httpClientContract.IHttpClient), httpClient)
+
+	// 分布式锁：按需加载，复用 cache 的 redis 连接（IRedisCache 已实现 SetNX/Eval 原子原语）
+	container.Set(new(lockContract.ILocker), lockService.NewRedisLocker(cacheFactory.Redis()))
 
 	// 消息队列：依赖 Kafka/NSQ broker，未配置时跳过（不影响其余示例启动）
 	if config.Mq.Driver != "" {
@@ -192,6 +208,9 @@ func registerRoutes(apiHandle iCoreApi.IApiHandle) {
 
 		// — 消息队列 —
 		apiGroup.Post("mq/demo", &demo.MqDemoApi{})
+
+		// — 分布式锁 —
+		apiGroup.Get("lock/demo", &demo.LockDemoApi{})
 	}
 }
 
