@@ -63,7 +63,7 @@ func (a CacheHashApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
 // CacheReadThroughApi 缓存读穿透 — 先查缓存，未命中则查 DB 并回写缓存
 type CacheReadThroughApi struct {
 	CacheFactory cacheContract.ICacheFactory `inject:""`
-	DbFactory    dbContract.IDbFactory       `inject:""`
+	Db           dbContract.IDb              `inject:""`
 }
 
 func (a CacheReadThroughApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
@@ -75,7 +75,7 @@ func (a CacheReadThroughApi) Call(ctx *gin.Context) (interface{}, iCoreError.IEr
 	}
 
 	// 2. 缓存未命中，查数据库
-	db := a.DbFactory.Build(ctx)
+	db := a.Db.WithContext(ctx)
 	var account AccountModel
 	if err := db.Where("id = ?", 1).Take(&account); err != nil {
 		return nil, errorSvc.NewError(response.Fail, err)

@@ -33,3 +33,16 @@ type OrderModel struct {
 func (o OrderModel) TableName() string { return "order" }
 
 func (o OrderModel) GetID() int { return o.ID }
+
+// LogModel 日志模型 — 演示 ClickHouse 追加写入 + 条件查询
+type LogModel struct {
+	Date string `json:"date" gorm:"column:date"`
+	Msg  string `json:"msg" gorm:"column:msg"`
+}
+
+func (l LogModel) TableName() string { return "log" }
+
+// ArticleModel 文章模型 — 演示 Elasticsearch 文档索引 + 搜索
+type ArticleModel struct {
+	Title string `json:"title"`
+}

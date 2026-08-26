@@ -5,6 +5,12 @@ import (
 
 	cacheContract "github.com/hecc-blot/cache/contract"
 	cache "github.com/hecc-blot/cache/service"
+	dbClickhouseContract "github.com/hecc-blot/db-clickhouse/contract"
+	dbClickhouse "github.com/hecc-blot/db-clickhouse/service"
+	dbEsContract "github.com/hecc-blot/db-es/contract"
+	dbEs "github.com/hecc-blot/db-es/service"
+	dbMongoContract "github.com/hecc-blot/db-mongo/contract"
+	dbMongo "github.com/hecc-blot/db-mongo/service"
 	dbContract "github.com/hecc-blot/db/contract"
 	db "github.com/hecc-blot/db/service"
 	iCoreApi "github.com/hecc-blot/framework/contract/api"
@@ -12,7 +18,7 @@ import (
 	httpSvc "github.com/hecc-blot/framework/service/http"
 	ioc "github.com/hecc-blot/framework/service/ioc"
 	log "github.com/hecc-blot/framework/service/log"
-	demo "github.com/hecc-blot/guide/example/demo"
+	"github.com/hecc-blot/guide/example/demo"
 	httpClientContract "github.com/hecc-blot/httpclient/contract"
 	httpClientService "github.com/hecc-blot/httpclient/service"
 	idempotentContract "github.com/hecc-blot/idempotent/contract"
@@ -27,7 +33,7 @@ import (
 	mqService "github.com/hecc-blot/mq/service"
 	ratelimitConfig "github.com/hecc-blot/ratelimit/config"
 	ratelimitContract "github.com/hecc-blot/ratelimit/contract"
-	algorithm "github.com/hecc-blot/ratelimit/enum/algorithm"
+	"github.com/hecc-blot/ratelimit/enum/algorithm"
 	ratelimitSvc "github.com/hecc-blot/ratelimit/service"
 	scheduler "github.com/hecc-blot/scheduler/service"
 	sseContract "github.com/hecc-blot/sse/contract"
@@ -59,6 +65,28 @@ func main() {
 	traceSvc, traceClearUp := must2(trace.NewTraceSvc(&config.Trace))
 	dbFactory, dbClearUp := must2(db.NewDbFactory(&config.Db, logSvc))
 
+	// 单库直连：仅使用 MySQL 的业务无需工厂，直接构造并注入 IDb（IDbFactory 仅多库切换场景使用）
+	mysqlDb, mysqlClearUp := must2(db.NewMysql(config.Db.Mysql, logSvc))
+
+	// 可选后端数据库：分析型 / 文档型 / 搜索型，按配置二选一装配，未配置时跳过（对应路由返回友好提示）
+	var (
+		clickhouseDb    dbClickhouseContract.IDbClickhouse
+		clickhouseClear func()
+		mongoDb         dbMongoContract.IDbDocument
+		mongoClear      func()
+		esDb            dbEsContract.IDbSearch
+		esClear         func()
+	)
+	if config.Clickhouse.Ip != "" {
+		clickhouseDb, clickhouseClear = must2(dbClickhouse.NewClickhouse(&config.Clickhouse, logSvc))
+	}
+	if config.Mongo.Uri != "" || config.Mongo.Ip != "" {
+		mongoDb, mongoClear = must2(dbMongo.NewMongo(&config.Mongo, logSvc))
+	}
+	if len(config.Es.Addresses) > 0 {
+		esDb, esClear = must2(dbEs.NewEs(&config.Es, logSvc))
+	}
+
 	cacheFactory := cache.NewCacheFactory(&config.Cache, traceSvc)
 	responseSvc := httpSvc.NewResponseSvc()
 
@@ -81,6 +109,16 @@ func main() {
 
 	// defer 注册退出清理（LIFO 顺序执行）
 	defer func() {
+		if esClear != nil {
+			esClear()
+		}
+		if mongoClear != nil {
+			mongoClear()
+		}
+		if clickhouseClear != nil {
+			clickhouseClear()
+		}
+		mysqlClearUp()
 		dbClearUp()
 		traceClearUp()
 		if cacheFactory.Redis() != nil {
@@ -92,6 +130,16 @@ func main() {
 	container := ioc.New()
 
 	container.Set(new(dbContract.IDbFactory), dbFactory)
+	container.Set(new(dbContract.IDb), mysqlDb)
+	if clickhouseDb != nil {
+		container.Set(new(dbClickhouseContract.IDbClickhouse), clickhouseDb)
+	}
+	if mongoDb != nil {
+		container.Set(new(dbMongoContract.IDbDocument), mongoDb)
+	}
+	if esDb != nil {
+		container.Set(new(dbEsContract.IDbSearch), esDb)
+	}
 	container.Set(new(logContract.ILog), logSvc)
 	container.Set(new(cacheContract.ICacheFactory), cacheFactory)
 	container.Set(new(iCoreApi.IResponse), responseSvc)
@@ -208,6 +256,15 @@ func registerRoutes(apiHandle iCoreApi.IApiHandle) {
 
 		// — 多数据库切换 —
 		apiGroup.Get("account/db-switch", &demo.DbSwitchApi{})
+
+		// — 分析型数据库（ClickHouse）—
+		apiGroup.Post("clickhouse/demo", &demo.ClickhouseDemoApi{})
+
+		// — 文档型数据库（MongoDB）—
+		apiGroup.Post("mongo/demo", &demo.MongoDemoApi{})
+
+		// — 搜索型数据库（Elasticsearch）—
+		apiGroup.Post("es/demo", &demo.EsDemoApi{})
 
 		// — 缓存操作 —
 		apiGroup.Get("cache/basic", &demo.CacheBasicApi{})

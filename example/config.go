@@ -2,20 +2,29 @@ package main
 
 import (
 	cacheConfig "github.com/hecc-blot/cache/config"
+	clickhouseConfig "github.com/hecc-blot/db-clickhouse/config"
+	esConfig "github.com/hecc-blot/db-es/config"
+	mongoConfig "github.com/hecc-blot/db-mongo/config"
 	dbConfig "github.com/hecc-blot/db/config"
 	serverConfig "github.com/hecc-blot/framework/config/http"
 	logConfig "github.com/hecc-blot/framework/config/log"
 	httpClientConfig "github.com/hecc-blot/httpclient/config"
-	mqConfig "github.com/hecc-blot/mq/config"
 	metricsConfig "github.com/hecc-blot/metrics/config"
+	mqConfig "github.com/hecc-blot/mq/config"
 	schedulerConfig "github.com/hecc-blot/scheduler/config"
 	traceConfig "github.com/hecc-blot/trace/config"
 )
 
 // Config 业务方配置聚合，按模块组装各模块的配置。
 type Config struct {
-	Cache     cacheConfig.Config
-	Db        dbConfig.Config
+	Cache cacheConfig.Config
+	Db    dbConfig.Config
+	// Clickhouse 分析型数据库配置（可选，Ip 为空则跳过装配）
+	Clickhouse clickhouseConfig.ClickhouseConfig
+	// Mongo 文档型数据库配置（可选，Uri 与 Ip 均为空则跳过装配）
+	Mongo mongoConfig.MongoConfig
+	// Es 搜索型数据库配置（可选，Addresses 为空则跳过装配）
+	Es        esConfig.EsConfig
 	Log       LogConfig
 	RateLimit RateLimitConfig
 	Server    serverConfig.Config
