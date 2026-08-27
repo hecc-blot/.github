@@ -5,7 +5,7 @@ import (
 	"time"
 
 	iCoreError "github.com/hecc-blot/framework/contract/error"
-	logContract "github.com/hecc-blot/framework/contract/log"
+	logContract "github.com/hecc-blot/core/contract/log"
 	traceContract "github.com/hecc-blot/trace/contract"
 
 	"github.com/gin-gonic/gin"

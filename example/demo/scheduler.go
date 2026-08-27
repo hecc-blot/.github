@@ -3,7 +3,7 @@ package demo
 import (
 	"context"
 
-	logContract "github.com/hecc-blot/framework/contract/log"
+	logContract "github.com/hecc-blot/core/contract/log"
 	"go.uber.org/zap"
 )
 

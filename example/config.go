@@ -7,7 +7,7 @@ import (
 	mongoConfig "github.com/hecc-blot/db-mongo/config"
 	dbConfig "github.com/hecc-blot/db/config"
 	serverConfig "github.com/hecc-blot/framework/config/http"
-	logConfig "github.com/hecc-blot/framework/config/log"
+	logConfig "github.com/hecc-blot/core/config/log"
 	httpClientConfig "github.com/hecc-blot/httpclient/config"
 	metricsConfig "github.com/hecc-blot/metrics/config"
 	mqConfig "github.com/hecc-blot/mq/config"

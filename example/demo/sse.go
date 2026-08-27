@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	logContract "github.com/hecc-blot/framework/contract/log"
+	logContract "github.com/hecc-blot/core/contract/log"
 	sseContract "github.com/hecc-blot/sse/contract"
 )
 

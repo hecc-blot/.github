@@ -4,7 +4,7 @@ import (
 	dbContract "github.com/hecc-blot/db/contract"
 	dbEnum "github.com/hecc-blot/db/enum/db"
 	iCoreError "github.com/hecc-blot/framework/contract/error"
-	logContract "github.com/hecc-blot/framework/contract/log"
+	logContract "github.com/hecc-blot/core/contract/log"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
 

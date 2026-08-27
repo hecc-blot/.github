@@ -6,7 +6,7 @@ import (
 	"time"
 
 	iCoreError "github.com/hecc-blot/framework/contract/error"
-	logContract "github.com/hecc-blot/framework/contract/log"
+	logContract "github.com/hecc-blot/core/contract/log"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
 	mqContract "github.com/hecc-blot/mq/contract"

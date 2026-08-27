@@ -4,13 +4,14 @@ go 1.26.1
 
 require (
 	github.com/gin-gonic/gin v1.12.0
-	github.com/hecc-blot/db-clickhouse v0.1.0
-	github.com/hecc-blot/db-es v0.1.0
-	github.com/hecc-blot/db-mongo v0.1.0
+	github.com/hecc-blot/core v0.1.4
+	github.com/hecc-blot/db-clickhouse v0.1.1
+	github.com/hecc-blot/db-es v0.1.1
+	github.com/hecc-blot/db-mongo v0.1.1
 	github.com/hecc-blot/idempotent v0.1.0
 	github.com/hecc-blot/lock v0.1.0
 	github.com/hecc-blot/metrics v0.1.1
-	github.com/hecc-blot/scheduler v0.1.0
+	github.com/hecc-blot/scheduler v0.1.1
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/spf13/viper v1.21.0
 	go.uber.org/zap v1.28.0
@@ -104,14 +105,14 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hecc-blot/cache v0.1.3
-	github.com/hecc-blot/db v0.1.3
-	github.com/hecc-blot/framework v0.1.2
-	github.com/hecc-blot/httpclient v0.1.2
-	github.com/hecc-blot/log-sls v0.1.2
-	github.com/hecc-blot/mq v0.1.1
+	github.com/hecc-blot/db v0.1.4
+	github.com/hecc-blot/framework v0.1.4
+	github.com/hecc-blot/httpclient v0.1.3
+	github.com/hecc-blot/log-sls v0.1.3
+	github.com/hecc-blot/mq v0.1.2
 	github.com/hecc-blot/ratelimit v0.1.2
 	github.com/hecc-blot/sse v0.1.2
-	github.com/hecc-blot/trace v0.1.2
+	github.com/hecc-blot/trace v0.1.3
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.10.0 // indirect
