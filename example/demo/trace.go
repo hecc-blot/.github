@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	iCoreError "github.com/hecc-blot/framework/contract/error"
 	logContract "github.com/hecc-blot/core/contract/log"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
+	iCoreError "github.com/hecc-blot/framework/contract/error"
 	traceContract "github.com/hecc-blot/trace/contract"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ===== 链路追踪 =====
@@ -20,7 +19,7 @@ type TraceDemoApi struct {
 	LogSvc   logContract.ILog     `inject:""`
 }
 
-func (a TraceDemoApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a TraceDemoApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	// 1. 从 Context 获取当前请求的 Span（由 HttpTraceMiddleware 自动创建）
 	currentSpan := a.TraceSvc.FromContext(ctx)
 

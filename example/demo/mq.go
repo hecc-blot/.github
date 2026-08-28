@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	iCoreError "github.com/hecc-blot/framework/contract/error"
 	logContract "github.com/hecc-blot/core/contract/log"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
+	iCoreError "github.com/hecc-blot/framework/contract/error"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
 	mqContract "github.com/hecc-blot/mq/contract"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ===== 消息队列 =====
@@ -26,7 +25,7 @@ type MqDemoApi struct {
 	MqFactory mqContract.IMqFactory `inject:""`
 }
 
-func (a MqDemoApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a MqDemoApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	if a.MqFactory == nil {
 		return nil, errorSvc.NewError(response.Fail, fmt.Errorf("MQ 未配置 broker，请先在 config.yaml 配置 mq 段"))
 	}

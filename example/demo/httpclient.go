@@ -1,12 +1,11 @@
 package demo
 
 import (
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
 	iCoreError "github.com/hecc-blot/framework/contract/error"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
 	httpClientContract "github.com/hecc-blot/httpclient/contract"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ===== HTTP 客户端 =====
@@ -21,7 +20,7 @@ type HttpClientDemoApi struct {
 	HttpClient httpClientContract.IHttpClient `inject:""`
 }
 
-func (a HttpClientDemoApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a HttpClientDemoApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	// 1. GET：默认重试（幂等），可通过 WithHeader 追加请求头
 	getResp, err := a.HttpClient.Get(ctx, "https://httpbin.org/get",
 		httpClientContract.WithHeader("X-Demo", "hecc-blot"),

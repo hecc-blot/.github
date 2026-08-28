@@ -2,12 +2,11 @@ package demo
 
 import (
 	dbContract "github.com/hecc-blot/db/contract"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
 	iCoreError "github.com/hecc-blot/framework/contract/error"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
 	"github.com/hecc-blot/framework/util"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ===== 分页 =====
@@ -26,7 +25,7 @@ type PageListApi struct {
 	PageRequest
 }
 
-func (a PageListApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a PageListApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	opts := util.PageOpts{Page: a.Page, PageSize: a.PageSize}
 	db := a.DbFactory.Build(ctx).Query(AccountModel{})
 
@@ -57,7 +56,7 @@ type CursorListApi struct {
 	CursorRequest
 }
 
-func (a CursorListApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a CursorListApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	db := a.DbFactory.Build(ctx).Query(AccountModel{})
 
 	// 多查一条用于判断 hasMore

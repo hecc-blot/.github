@@ -1,15 +1,15 @@
 package demo
 
 import (
+	"context"
 	"time"
 
 	cacheContract "github.com/hecc-blot/cache/contract"
 	dbContract "github.com/hecc-blot/db/contract"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
 	iCoreError "github.com/hecc-blot/framework/contract/error"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ===== 缓存操作 =====
@@ -21,7 +21,7 @@ type CacheBasicApi struct {
 	CacheFactory cacheContract.ICacheFactory `inject:""`
 }
 
-func (a CacheBasicApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a CacheBasicApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	// 本地缓存 — Set / Get / Exists / Del
 	_ = a.CacheFactory.Local().Set(ctx, "local:key", "hello", 10*time.Minute)
 
@@ -44,7 +44,7 @@ type CacheHashApi struct {
 	CacheFactory cacheContract.ICacheFactory `inject:""`
 }
 
-func (a CacheHashApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a CacheHashApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	// HSet — 同时设置多个 field
 	err := a.CacheFactory.Redis().HSet(ctx, "user:1", "name", "john", "email", "john@test.com")
 	if err != nil {
@@ -60,30 +60,26 @@ func (a CacheHashApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
 	return name, nil
 }
 
-// CacheReadThroughApi 缓存读穿透 — 先查缓存，未命中则查 DB 并回写缓存
+// CacheReadThroughApi 缓存读穿透 — 编排层一行完成「查缓存 → 查库 → 回填」（内置防击穿 + 空值防穿透）
 type CacheReadThroughApi struct {
 	CacheFactory cacheContract.ICacheFactory `inject:""`
 	Db           dbContract.IDb              `inject:""`
 }
 
-func (a CacheReadThroughApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
-	cacheKey := "account:1"
-
-	// 1. 先从本地缓存读取
-	if cached, _ := a.CacheFactory.Local().Get(ctx, cacheKey); cached != nil {
-		return cached, nil
-	}
-
-	// 2. 缓存未命中，查数据库
-	db := a.Db.WithContext(ctx)
-	var account AccountModel
-	if err := db.Where("id = ?", 1).Take(&account); err != nil {
+func (a CacheReadThroughApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
+	// 只传「取数闭包」：框架统一处理缓存未命中、并发合并、回填与空值防穿透
+	account, err := a.CacheFactory.Orchestrator().GetOrLoad(ctx, "account:1",
+		func(ctx context.Context) (interface{}, error) {
+			db := a.Db.WithContext(ctx)
+			var account AccountModel
+			if err := db.Where("id = ?", 1).Take(&account); err != nil {
+				return nil, err
+			}
+			return account, nil
+		})
+	if err != nil {
 		return nil, errorSvc.NewError(response.Fail, err)
 	}
-
-	// 3. 回写缓存（本地 + Redis 双写）
-	_ = a.CacheFactory.Local().Set(ctx, cacheKey, account, 10*time.Minute)
-	_ = a.CacheFactory.Redis().Set(ctx, cacheKey, account, 10*time.Minute)
 
 	return account, nil
 }

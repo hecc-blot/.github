@@ -41,8 +41,8 @@ import (
 	trace "github.com/hecc-blot/trace/service"
 
 	"context"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 )
@@ -165,12 +165,12 @@ func main() {
 	// 监控指标：自动采集 QPS/延迟/错误率（path 用路由模板避免高基数）
 	apiHandle.Middleware(metrics.NewHttpMiddleware(metricsSvc))
 	// Prometheus 采集端点
-	apiHandle.Engine().GET(metricsCfg.Path, gin.WrapH(metricsSvc.Handler()))
+	apiHandle.Handle(http.MethodGet, metricsCfg.Path, metricsSvc.Handler())
 	// 请求限流：业务方引入 ratelimit 模块后自行实现中间件并显式注册（是否启用由本行决定）
 	apiHandle.Middleware(&demo.RateLimitMiddleware{Limiter: newRateLimiter(config)})
 	registerRoutes(apiHandle)
 
-	sseHandle := sse.NewSseSvc(apiHandle.Engine(), container)
+	sseHandle := sse.NewSseSvc(apiHandle, container)
 	sseHandle.Middleware(trace.NewSseMiddleware(traceSvc))
 	registerSseRoutes(sseHandle)
 

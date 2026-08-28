@@ -88,8 +88,8 @@ apiHandle.Middleware(trace.NewHttpMiddleware(traceSvc))
 apiHandle.Middleware(&RateLimitMiddleware{}) // implemented by you via ratelimit
 registerRoutes(apiHandle)
 
-// SSE shares the API engine
-sseHandle := sse.NewSseSvc(apiHandle.Engine(), container)
+// SSE reuses the API route registration
+sseHandle := sse.NewSseSvc(apiHandle, container)
 sseHandle.Middleware(trace.NewSseMiddleware(traceSvc))
 registerSseRoutes(sseHandle)
 

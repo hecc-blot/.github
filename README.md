@@ -88,8 +88,8 @@ apiHandle.Middleware(trace.NewHttpMiddleware(traceSvc))
 apiHandle.Middleware(&RateLimitMiddleware{}) // 业务方引入 ratelimit 后自行实现
 registerRoutes(apiHandle)
 
-// SSE 共享 API 的 Engine
-sseHandle := sse.NewSseSvc(apiHandle.Engine(), container)
+// SSE 复用 API 的路由注册（不感知具体 HTTP 内核）
+sseHandle := sse.NewSseSvc(apiHandle, container)
 sseHandle.Middleware(trace.NewSseMiddleware(traceSvc))
 registerSseRoutes(sseHandle)
 

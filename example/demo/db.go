@@ -1,14 +1,13 @@
 package demo
 
 import (
+	logContract "github.com/hecc-blot/core/contract/log"
 	dbContract "github.com/hecc-blot/db/contract"
 	dbEnum "github.com/hecc-blot/db/enum/db"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
 	iCoreError "github.com/hecc-blot/framework/contract/error"
-	logContract "github.com/hecc-blot/core/contract/log"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ===== 数据库 CRUD =====
@@ -18,12 +17,12 @@ import (
 
 // AddAccountApi 新增账户 + 事务演示
 type AddAccountApi struct {
-	Db     dbContract.IDb `inject:""`
+	Db     dbContract.IDb   `inject:""`
 	LogSvc logContract.ILog `inject:""`
 	AddAccountRequest
 }
 
-func (a AddAccountApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a AddAccountApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	account := AccountModel{
 		AccountName: a.AccountName,
 		Password:    a.Password,
@@ -57,7 +56,7 @@ type TakeAccountApi struct {
 	Db dbContract.IDb `inject:""`
 }
 
-func (a TakeAccountApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a TakeAccountApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	db := a.Db.WithContext(ctx)
 	var account AccountModel
 	if err := db.Where("id = ?", 1).Take(&account); err != nil {
@@ -71,7 +70,7 @@ type FindAccountApi struct {
 	Db dbContract.IDb `inject:""`
 }
 
-func (a FindAccountApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a FindAccountApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	db := a.Db.WithContext(ctx)
 	var list []AccountModel
 	if err := db.
@@ -89,7 +88,7 @@ type CountAccountApi struct {
 	Db dbContract.IDb `inject:""`
 }
 
-func (a CountAccountApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a CountAccountApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	db := a.Db.WithContext(ctx)
 	count, err := db.Query(AccountModel{}).Where("id >= ?", 1).Count()
 	if err != nil {
@@ -103,7 +102,7 @@ type UpdateAccountApi struct {
 	Db dbContract.IDb `inject:""`
 }
 
-func (a UpdateAccountApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a UpdateAccountApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	db := a.Db.WithContext(ctx)
 	updateData := AccountModel{AccountName: "updated_name", Email: "new@example.com"}
 	if err := db.Where("id = ?", 1).Save(&updateData); err != nil {
@@ -117,7 +116,7 @@ type DeleteAccountApi struct {
 	Db dbContract.IDb `inject:""`
 }
 
-func (a DeleteAccountApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a DeleteAccountApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	db := a.Db.WithContext(ctx)
 	if err := db.Where("id = ?", 1).Remove(&AccountModel{}); err != nil {
 		return nil, errorSvc.NewError(response.Fail, err)
@@ -135,7 +134,7 @@ type DbSwitchApi struct {
 	DbFactory dbContract.IDbFactory `inject:""`
 }
 
-func (a DbSwitchApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a DbSwitchApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	// 方式一：使用默认数据库（由 config.default 决定，本例为 MySQL）
 	mysqlDB := a.DbFactory.Build(ctx)
 

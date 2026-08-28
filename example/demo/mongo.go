@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	dbMongoContract "github.com/hecc-blot/db-mongo/contract"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
 	iCoreError "github.com/hecc-blot/framework/contract/error"
 	"github.com/hecc-blot/framework/enum/response"
 	errorSvc "github.com/hecc-blot/framework/service/error"
 
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -22,7 +22,7 @@ type MongoDemoApi struct {
 	Doc dbMongoContract.IDbDocument `inject:""`
 }
 
-func (a MongoDemoApi) Call(ctx *gin.Context) (interface{}, iCoreError.IError) {
+func (a MongoDemoApi) Call(ctx iCoreApi.IContext) (interface{}, iCoreError.IError) {
 	if a.Doc == nil {
 		return nil, errorSvc.NewError(response.Fail, fmt.Errorf("MongoDB 未配置，请先在 config.yaml 填写 mongo 段"))
 	}
