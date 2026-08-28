@@ -5,6 +5,8 @@ import (
 
 	cacheContract "github.com/hecc-blot/cache/contract"
 	cache "github.com/hecc-blot/cache/service"
+	logContract "github.com/hecc-blot/core/contract/log"
+	log "github.com/hecc-blot/core/service/log"
 	dbClickhouseContract "github.com/hecc-blot/db-clickhouse/contract"
 	dbClickhouse "github.com/hecc-blot/db-clickhouse/service"
 	dbEsContract "github.com/hecc-blot/db-es/contract"
@@ -14,10 +16,8 @@ import (
 	dbContract "github.com/hecc-blot/db/contract"
 	db "github.com/hecc-blot/db/service"
 	iCoreApi "github.com/hecc-blot/framework/contract/api"
-	logContract "github.com/hecc-blot/core/contract/log"
 	httpSvc "github.com/hecc-blot/framework/service/http"
 	ioc "github.com/hecc-blot/framework/service/ioc"
-	log "github.com/hecc-blot/core/service/log"
 	"github.com/hecc-blot/guide/example/demo"
 	httpClientContract "github.com/hecc-blot/httpclient/contract"
 	httpClientService "github.com/hecc-blot/httpclient/service"
@@ -25,7 +25,6 @@ import (
 	idempotentService "github.com/hecc-blot/idempotent/service"
 	lockContract "github.com/hecc-blot/lock/contract"
 	lockService "github.com/hecc-blot/lock/service"
-	logsls "github.com/hecc-blot/log-sls/service"
 	metricsConfig "github.com/hecc-blot/metrics/config"
 	metricsContract "github.com/hecc-blot/metrics/contract"
 	metrics "github.com/hecc-blot/metrics/service"
@@ -55,13 +54,9 @@ import (
 func main() {
 	config := initConf("config.yaml")
 
-	// 日志：本地日志（默认）或 SLS（加强后端，见 log-sls 模块），由组装层按配置二选一
-	var logSvc logContract.ILog
-	if config.Log.Sls.Enable {
-		logSvc = must(logsls.NewLogger(&config.Log.Sls))
-	} else {
-		logSvc = must(log.NewLogger(&config.Log.Local))
-	}
+	// 日志：本地日志（core 默认）与 SLS（log-sls）二选一，业务方按需显式指定，不做 enable 自动切换。
+	// 此处用本地日志；改用 SLS 时换成 logsls.NewLogger(&config.Log.Sls)（见 log-sls 模块）。
+	logSvc := must(log.NewLogger(&config.Log.Local))
 	traceSvc, traceClearUp := must2(trace.NewTraceSvc(&config.Trace))
 	dbFactory, dbClearUp := must2(db.NewDbFactory(&config.Db, logSvc))
 

@@ -2,13 +2,14 @@ package main
 
 import (
 	cacheConfig "github.com/hecc-blot/cache/config"
+	logConfig "github.com/hecc-blot/core/config/log"
 	clickhouseConfig "github.com/hecc-blot/db-clickhouse/config"
 	esConfig "github.com/hecc-blot/db-es/config"
 	mongoConfig "github.com/hecc-blot/db-mongo/config"
 	dbConfig "github.com/hecc-blot/db/config"
 	serverConfig "github.com/hecc-blot/framework/config/http"
-	logConfig "github.com/hecc-blot/core/config/log"
 	httpClientConfig "github.com/hecc-blot/httpclient/config"
+	slsConfig "github.com/hecc-blot/log-sls/config"
 	metricsConfig "github.com/hecc-blot/metrics/config"
 	mqConfig "github.com/hecc-blot/mq/config"
 	schedulerConfig "github.com/hecc-blot/scheduler/config"
@@ -39,10 +40,10 @@ type Config struct {
 	Metrics metricsConfig.Config
 }
 
-// LogConfig 日志配置聚合：本地日志（framework/log）与 SLS（log-sls）按需二选一。
+// LogConfig 日志配置聚合：本地日志（core/service/log）与 SLS（log-sls）按需二选一。
 type LogConfig struct {
 	Local logConfig.LocalConfig
-	Sls   logConfig.SlsConfig
+	Sls   slsConfig.SlsConfig
 }
 
 // RateLimitConfig 请求频率限流配置（业务方自持有，框架不内置限流）。

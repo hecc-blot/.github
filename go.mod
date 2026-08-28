@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	github.com/gin-gonic/gin v1.12.0
-	github.com/hecc-blot/core v0.1.4
+	github.com/hecc-blot/core v0.1.5
 	github.com/hecc-blot/db-clickhouse v0.1.1
 	github.com/hecc-blot/db-es v0.1.1
 	github.com/hecc-blot/db-mongo v0.1.1
@@ -108,7 +108,7 @@ require (
 	github.com/hecc-blot/db v0.1.4
 	github.com/hecc-blot/framework v0.1.4
 	github.com/hecc-blot/httpclient v0.1.3
-	github.com/hecc-blot/log-sls v0.1.3
+	github.com/hecc-blot/log-sls v0.1.4
 	github.com/hecc-blot/mq v0.1.2
 	github.com/hecc-blot/ratelimit v0.1.2
 	github.com/hecc-blot/sse v0.1.2

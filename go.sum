@@ -162,6 +162,8 @@ github.com/hecc-blot/circuitbreaker v0.1.0 h1:DnMMGfMm8ogFL0ZbvaopNoU2txi3WyMNqv
 github.com/hecc-blot/circuitbreaker v0.1.0/go.mod h1:67jv8Hf/f5JVEUnw4vf/ioWD2HfLt5nOWtwWat03nf8=
 github.com/hecc-blot/core v0.1.4 h1:FPKkhiwxxOBbwk+whpUwh1wDrW3ql3NQM2v+naooXlw=
 github.com/hecc-blot/core v0.1.4/go.mod h1:Nlw9oi5mvVJSjkE9LXCnGTTXgOTvYKdREYrEddoVXVE=
+github.com/hecc-blot/core v0.1.5 h1:EQ4FNzqLplMcgAzYGStowrtW6ukeOT/4Dt1VwM4T/cQ=
+github.com/hecc-blot/core v0.1.5/go.mod h1:Nlw9oi5mvVJSjkE9LXCnGTTXgOTvYKdREYrEddoVXVE=
 github.com/hecc-blot/db v0.1.4 h1:0g1+d528ajqFOhsy2dQZapmF7ythlHEiyRhj7C0bUus=
 github.com/hecc-blot/db v0.1.4/go.mod h1:VOy2pRxS8FDZJ3jf6G0HCnzZqhnOClC4YG/XRQXuPn0=
 github.com/hecc-blot/db-clickhouse v0.1.1 h1:ZIuzx2CSl9iZ/ujPne89h0SOC3snWZBohr6X755JPJk=
@@ -180,6 +182,8 @@ github.com/hecc-blot/lock v0.1.0 h1:1k/MFhUuHrnTdwvSPuwbLuthM6Cdp+R2S3zt+qFyzVI=
 github.com/hecc-blot/lock v0.1.0/go.mod h1:zqpwALHpUtD+RZDjj6aWL4NHZpNp2QOFQMZU8bOlp1c=
 github.com/hecc-blot/log-sls v0.1.3 h1:vMiMtMlFExiB/NrP6FADy/zT0bXbkeX/Q8ETBWR1Ehs=
 github.com/hecc-blot/log-sls v0.1.3/go.mod h1:r3xcngsv9IwdLSAxgM14geJbo/L/7e2qY0uxCmMA/eg=
+github.com/hecc-blot/log-sls v0.1.4 h1:oMv9ZXXbMLmOcAnkLa0bcK8AfTVV9oymJ9jDRrM0uKc=
+github.com/hecc-blot/log-sls v0.1.4/go.mod h1:T0pXqeaq12SGfRsbktA1dJliqMsP+IRMrQuh++afN5Q=
 github.com/hecc-blot/metrics v0.1.1 h1:8jQsxXHfMW8QQeK5euAVTufGVd/rnGusQBWaDYKoIzg=
 github.com/hecc-blot/metrics v0.1.1/go.mod h1:s+6u48/BQ0DGSvfmVYAx4Uw/g3Yb8FcYvmg8etCVXyI=
 github.com/hecc-blot/mq v0.1.2 h1:LLC9HNQJUBgFQfbHfXx8VltuIJkrLbr+D5DemcFAjKI=

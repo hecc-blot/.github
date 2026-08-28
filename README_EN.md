@@ -65,13 +65,8 @@ Modules are wired together through interface contracts and the IOC container. A 
 ```go
 config := initConf("config.yaml")
 
-// Logging: local (framework) or SLS (log-sls), chosen by config
-var logSvc logContract.ILog
-if config.Log.Sls.Enable {
-    logSvc = must(logsls.NewLogger(&config.Log.Sls))
-} else {
-    logSvc = must(log.NewLogger(&config.Log.Local))
-}
+// Logging: local (core) or SLS (log-sls), chosen explicitly by the business
+logSvc := must(log.NewLogger(&config.Log.Local))
 
 traceSvc, traceClearUp := must2(trace.NewTraceSvc(&config.Trace))
 dbFactory, dbClearUp := must2(db.NewDbFactory(&config.Db, logSvc))

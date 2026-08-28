@@ -65,13 +65,8 @@ go run .
 ```go
 config := initConf("config.yaml")
 
-// 日志：本地（framework）或 SLS（log-sls），按配置二选一
-var logSvc logContract.ILog
-if config.Log.Sls.Enable {
-    logSvc = must(logsls.NewLogger(&config.Log.Sls))
-} else {
-    logSvc = must(log.NewLogger(&config.Log.Local))
-}
+// 日志：本地（core）与 SLS（log-sls）二选一，业务方显式指定
+logSvc := must(log.NewLogger(&config.Log.Local))
 
 traceSvc, traceClearUp := must2(trace.NewTraceSvc(&config.Trace))
 dbFactory, dbClearUp := must2(db.NewDbFactory(&config.Db, logSvc))
