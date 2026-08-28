@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	cacheContract "github.com/hecc-blot/cache/contract"
 	cache "github.com/hecc-blot/cache/service"
 	logContract "github.com/hecc-blot/core/contract/log"
@@ -19,6 +17,7 @@ import (
 	httpSvc "github.com/hecc-blot/framework/service/http"
 	ioc "github.com/hecc-blot/framework/service/ioc"
 	"github.com/hecc-blot/guide/example/demo"
+	"github.com/hecc-blot/guide/example/internal/app"
 	httpClientContract "github.com/hecc-blot/httpclient/contract"
 	httpClientService "github.com/hecc-blot/httpclient/service"
 	idempotentContract "github.com/hecc-blot/idempotent/contract"
@@ -44,7 +43,6 @@ import (
 	"net/http"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/spf13/viper"
 )
 
 // ===== 启动入口 =====
@@ -52,16 +50,16 @@ import (
 // 各组件示例见 demo/ 子包，本文件只负责组装。
 
 func main() {
-	config := initConf("config.yaml")
+	config := app.InitConf("config.yaml")
 
 	// 日志：本地日志（core 默认）与 SLS（log-sls）二选一，业务方按需显式指定，不做 enable 自动切换。
 	// 此处用本地日志；改用 SLS 时换成 logsls.NewLogger(&config.Log.Sls)（见 log-sls 模块）。
-	logSvc := must(log.NewLogger(&config.Log.Local))
-	traceSvc, traceClearUp := must2(trace.NewTraceSvc(&config.Trace))
-	dbFactory, dbClearUp := must2(db.NewDbFactory(&config.Db, logSvc))
+	logSvc := app.Must(log.NewLogger(&config.Log.Local))
+	traceSvc, traceClearUp := app.Must2(trace.NewTraceSvc(&config.Trace))
+	dbFactory, dbClearUp := app.Must2(db.NewDbFactory(&config.Db, logSvc))
 
 	// 单库直连：仅使用 MySQL 的业务无需工厂，直接构造并注入 IDb（IDbFactory 仅多库切换场景使用）
-	mysqlDb, mysqlClearUp := must2(db.NewMysql(config.Db.Mysql, logSvc))
+	mysqlDb, mysqlClearUp := app.Must2(db.NewMysql(config.Db.Mysql, logSvc))
 
 	// 可选后端数据库：分析型 / 文档型 / 搜索型，按配置二选一装配，未配置时跳过（对应路由返回友好提示）
 	var (
@@ -73,13 +71,13 @@ func main() {
 		esClear         func()
 	)
 	if config.Clickhouse.Ip != "" {
-		clickhouseDb, clickhouseClear = must2(dbClickhouse.NewClickhouse(&config.Clickhouse, logSvc))
+		clickhouseDb, clickhouseClear = app.Must2(dbClickhouse.NewClickhouse(&config.Clickhouse, logSvc))
 	}
 	if config.Mongo.Uri != "" || config.Mongo.Ip != "" {
-		mongoDb, mongoClear = must2(dbMongo.NewMongo(&config.Mongo, logSvc))
+		mongoDb, mongoClear = app.Must2(dbMongo.NewMongo(&config.Mongo, logSvc))
 	}
 	if len(config.Es.Addresses) > 0 {
-		esDb, esClear = must2(dbEs.NewEs(&config.Es, logSvc))
+		esDb, esClear = app.Must2(dbEs.NewEs(&config.Es, logSvc))
 	}
 
 	cacheFactory := cache.NewCacheFactory(&config.Cache, traceSvc)
@@ -177,41 +175,9 @@ func main() {
 	apiHandle.Listen(sseHandle.Shutdown)
 }
 
-// must 单返回值错误处理：出错直接 panic
-func must[T any](val T, err error) T {
-	if err != nil {
-		panic(fmt.Errorf("初始化失败: %w", err))
-	}
-	return val
-}
-
-// must2 双返回值错误处理：出错直接 panic
-func must2[T, U any](val T, cleanup U, err error) (T, U) {
-	if err != nil {
-		panic(fmt.Errorf("初始化失败: %w", err))
-	}
-	return val, cleanup
-}
-
-// ===== 配置加载 =====
-// 演示：使用 viper 读取 config.yaml，反序列化为 Config 结构体
-
-func initConf(configPath string) *Config {
-	v := viper.New()
-	v.SetConfigFile(configPath)
-	if err := v.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("读取配置文件失败: %w", err))
-	}
-	var conf Config
-	if err := v.Unmarshal(&conf); err != nil {
-		panic(fmt.Errorf("解析配置文件失败: %w", err))
-	}
-	return &conf
-}
-
 // newRateLimiter 根据配置选择限流后端：backend=redis 使用独立 redis 连接（集群统一计数），
 // 否则用内存限流（单实例）。算法由 config.RateLimit.Algorithm 决定。
-func newRateLimiter(config *Config) ratelimitContract.RateLimiter {
+func newRateLimiter(config *app.Config) ratelimitContract.RateLimiter {
 	cfg := ratelimitConfig.Config{
 		Algorithm: algorithm.Algorithm(config.RateLimit.Algorithm),
 		Limit:     config.RateLimit.Limit,

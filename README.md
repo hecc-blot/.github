@@ -34,10 +34,23 @@ go run .
 ## 目录结构
 
 ```
-├── example/                # 完整使用示例（go run ./example）
-│   ├── main.go             #   组装入口（package main）
-│   ├── config.go           #   配置结构
-│   └── demo/               #   各组件示例（package demo）
+├── example/                # 使用示例（全量组装入口 + 按模块拆分的入口）
+│   ├── main.go             #   全量组装入口（所有模块一起启动，cd example && go run .）
+│   ├── config.yaml         #   统一配置（各 main 共用）
+│   ├── internal/app/       #   共享配置结构与初始化助手（InitConf/Must/Must2）
+│   ├── demo/               #   各组件 API / Model / 中间件（package demo）
+│   ├── db/                 #   只演示 db 模块
+│   ├── cache/              #   只演示 cache 模块
+│   ├── clickhouse/         #   只演示 db-clickhouse 模块
+│   ├── mongo/              #   只演示 db-mongo 模块
+│   ├── es/                 #   只演示 db-es 模块
+│   ├── trace/              #   只演示 trace 模块
+│   ├── httpclient/         #   只演示 httpclient 模块
+│   ├── mq/                 #   只演示 mq 模块
+│   ├── lock/               #   只演示 lock 模块
+│   ├── idempotent/         #   只演示 idempotent 模块
+│   ├── scheduler/          #   只演示 scheduler 模块
+│   └── sse/                #   只演示 sse 模块
 ├── example.http            # 全部路由端点的请求文件
 └── README.md
 ```
@@ -116,6 +129,27 @@ apiHandle.Listen(sseHandle.Shutdown)
 | demo/sse.go | SSE 推送：ISse 接口、心跳、Writer 写入 | [sse](https://github.com/hecc-blot/sse) |
 | demo/httpclient.go | HTTP 客户端：NewHttpClient、Get/Post、重试与结构化日志 | [httpclient](https://github.com/hecc-blot/httpclient) |
 | demo/mq.go | 消息队列：Producer 发送、Consumer 订阅、延迟/顺序能力断言 | [mq](https://github.com/hecc-blot/mq) |
+
+## 按模块查看示例
+
+`example/main.go` 是全量组装入口；只想看某个模块的用法，可直接运行对应子目录的 main（各自只依赖该模块所需的最小依赖）：
+
+| 入口目录 | 演示模块 | 端点 / 行为 |
+|----------|---------|------------|
+| `db/` | db（CRUD + 多库切换） | account/add、take、find、count、update、delete、db-switch |
+| `cache/` | cache（本地/Redis + 读穿透） | cache/basic、hash、read-through |
+| `clickhouse/` | db-clickhouse | clickhouse/demo |
+| `mongo/` | db-mongo | mongo/demo |
+| `es/` | db-es | es/demo |
+| `trace/` | trace | trace/demo |
+| `httpclient/` | httpclient | httpclient/demo |
+| `mq/` | mq | mq/demo |
+| `lock/` | lock | lock/demo |
+| `idempotent/` | idempotent | idempotent/demo |
+| `scheduler/` | scheduler | 后台 cron 任务（无 HTTP 端点） |
+| `sse/` | sse | events/time（GET/POST） |
+
+运行方式统一为：`cd example/<目录> && go run .`（配置路径由各 main 内部用 `../../config.yaml` 解析）。
 
 ## 设计原则
 

@@ -1,6 +1,8 @@
-package main
+package app
 
 import (
+	"fmt"
+
 	cacheConfig "github.com/hecc-blot/cache/config"
 	logConfig "github.com/hecc-blot/core/config/log"
 	clickhouseConfig "github.com/hecc-blot/db-clickhouse/config"
@@ -14,9 +16,12 @@ import (
 	mqConfig "github.com/hecc-blot/mq/config"
 	schedulerConfig "github.com/hecc-blot/scheduler/config"
 	traceConfig "github.com/hecc-blot/trace/config"
+
+	"github.com/spf13/viper"
 )
 
 // Config 业务方配置聚合，按模块组装各模块的配置。
+// 各示例 main 共用同一份 config.yaml，按需取用其中的字段。
 type Config struct {
 	Cache cacheConfig.Config
 	Db    dbConfig.Config
@@ -53,4 +58,35 @@ type RateLimitConfig struct {
 	Algorithm string `mapstructure:"algorithm"` // 算法：sliding_window(默认) | token_bucket
 	Limit     int    `mapstructure:"limit"`     // 窗口内最大请求数 / 令牌桶容量
 	Window    int    `mapstructure:"window"`    // 窗口时长（秒）
+}
+
+// InitConf 使用 viper 读取 config.yaml，反序列化为 Config。
+// configPath 相对各 main 所在目录传入（全量组装为 "config.yaml"，子模块为 "../../config.yaml"）。
+func InitConf(configPath string) *Config {
+	v := viper.New()
+	v.SetConfigFile(configPath)
+	if err := v.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("读取配置文件失败: %w", err))
+	}
+	var conf Config
+	if err := v.Unmarshal(&conf); err != nil {
+		panic(fmt.Errorf("解析配置文件失败: %w", err))
+	}
+	return &conf
+}
+
+// Must 单返回值错误处理：出错直接 panic。
+func Must[T any](val T, err error) T {
+	if err != nil {
+		panic(fmt.Errorf("初始化失败: %w", err))
+	}
+	return val
+}
+
+// Must2 双返回值错误处理：出错直接 panic。
+func Must2[T, U any](val T, cleanup U, err error) (T, U) {
+	if err != nil {
+		panic(fmt.Errorf("初始化失败: %w", err))
+	}
+	return val, cleanup
 }
