@@ -49,6 +49,7 @@ go run .
 │   ├── mq/                 #   只演示 mq 模块
 │   ├── lock/               #   只演示 lock 模块
 │   ├── idempotent/         #   只演示 idempotent 模块
+│   ├── circuitbreaker/     #   只演示 circuitbreaker 模块
 │   ├── scheduler/          #   只演示 scheduler 模块
 │   └── sse/                #   只演示 sse 模块
 ├── example.http            # 全部路由端点的请求文件
@@ -70,6 +71,7 @@ go run .
 | trace | 链路追踪（OpenTelemetry） | [hecc-blot-trace](https://github.com/hecc-blot/trace) |
 | httpclient | 统一 HTTP 客户端 | [hecc-blot-httpclient](https://github.com/hecc-blot/httpclient) |
 | mq | 消息队列（Kafka/NSQ） | [hecc-blot-mq](https://github.com/hecc-blot/mq) |
+| circuitbreaker | 熔断器（进程内本地状态，连续失败熔断 + 冷却半开探测） | [hecc-blot-circuitbreaker](https://github.com/hecc-blot/circuitbreaker) |
 
 ## 组装骨架
 
@@ -129,6 +131,7 @@ apiHandle.Listen(sseHandle.Shutdown)
 | demo/sse.go | SSE 推送：ISse 接口、心跳、Writer 写入 | [sse](https://github.com/hecc-blot/sse) |
 | demo/httpclient.go | HTTP 客户端：NewHttpClient、Get/Post、重试与结构化日志 | [httpclient](https://github.com/hecc-blot/httpclient) |
 | demo/mq.go | 消息队列：Producer 发送、Consumer 订阅、延迟/顺序能力断言 | [mq](https://github.com/hecc-blot/mq) |
+| demo/circuitbreaker.go | 熔断器：Allow/Record 状态机、熔断降级 | [circuitbreaker](https://github.com/hecc-blot/circuitbreaker) |
 
 ## 按模块查看示例
 
@@ -146,6 +149,7 @@ apiHandle.Listen(sseHandle.Shutdown)
 | `mq/` | mq | mq/demo |
 | `lock/` | lock | lock/demo |
 | `idempotent/` | idempotent | idempotent/demo |
+| `circuitbreaker/` | circuitbreaker | circuitbreaker/demo |
 | `scheduler/` | scheduler | 后台 cron 任务（无 HTTP 端点） |
 | `sse/` | sse | events/time（GET/POST） |
 

@@ -3,6 +3,9 @@ package main
 import (
 	cacheContract "github.com/hecc-blot/cache/contract"
 	cache "github.com/hecc-blot/cache/service"
+	circuitbreakerConfig "github.com/hecc-blot/circuitbreaker/config"
+	circuitbreakerContract "github.com/hecc-blot/circuitbreaker/contract"
+	circuitbreakerSvc "github.com/hecc-blot/circuitbreaker/service"
 	logContract "github.com/hecc-blot/core/contract/log"
 	log "github.com/hecc-blot/core/service/log"
 	dbClickhouseContract "github.com/hecc-blot/db-clickhouse/contract"
@@ -90,6 +93,9 @@ func main() {
 	metricsCfg := metricsConfig.Normalize(config.Metrics)
 	metricsSvc := metrics.NewMetrics(&metricsCfg)
 
+	// 熔断器：进程内本地状态（连续失败熔断 + 冷却半开探测），无外部依赖
+	breaker := circuitbreakerSvc.New(circuitbreakerConfig.Config{FailureThreshold: 3})
+
 	// 定时任务：cron 调度器，覆盖超时处理/周期对账/批量清理（无外部依赖，配置无效时跳过）
 	schedulerSvc, err := scheduler.NewScheduler(&config.Scheduler, logSvc, traceSvc, nil)
 	if err != nil {
@@ -139,6 +145,8 @@ func main() {
 	container.Set(new(traceContract.ITrace), traceSvc)
 	container.Set(new(httpClientContract.IHttpClient), httpClient)
 	container.Set(new(metricsContract.IMetrics), metricsSvc)
+	// 熔断器：进程内本地状态，注册为共享实例（各请求注入同一 breaker，共享熔断状态）
+	container.Set(new(circuitbreakerContract.Breaker), breaker)
 
 	// 分布式锁：按需加载，复用 cache 的 redis 连接（IRedisCache 已实现 SetNX/Eval 原子原语）
 	container.Set(new(lockContract.ILocker), lockService.NewRedisLocker(cacheFactory.Redis()))
@@ -250,6 +258,9 @@ func registerRoutes(apiHandle iCoreApi.IApiHandle) {
 
 		// — 幂等 —
 		apiGroup.Get("idempotent/demo", &demo.IdempotentDemoApi{})
+
+		// — 熔断器 —
+		apiGroup.Get("circuitbreaker/demo", &demo.CircuitBreakerDemoApi{})
 	}
 }
 

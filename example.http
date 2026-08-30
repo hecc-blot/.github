@@ -110,3 +110,7 @@ Content-Type: application/json
 Authorization: demo
 
 {}
+
+### 14. 熔断器示例（?fail=true 记一次失败，连续失败触发熔断，冷却后半开探测）
+GET http://localhost:9500/circuitbreaker/demo?fail=true
+Authorization: demo

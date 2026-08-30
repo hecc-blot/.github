@@ -3,6 +3,7 @@ module github.com/hecc-blot/guide
 go 1.26.1
 
 require (
+	github.com/hecc-blot/circuitbreaker v0.1.0
 	github.com/hecc-blot/core v0.1.5
 	github.com/hecc-blot/db-clickhouse v0.1.1
 	github.com/hecc-blot/db-es v0.1.1
@@ -36,7 +37,6 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
-	github.com/hecc-blot/circuitbreaker v0.1.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nsqio/go-nsq v1.1.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
