@@ -1,9 +1,0 @@
-.idea/
-.vscode/
-example/config.yaml
-.trae/
-runtime/
-example/runtime/
-modules/db/runtime/
-modules/log/runtime/
-*.exe
