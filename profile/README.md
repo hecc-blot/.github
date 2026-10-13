@@ -79,7 +79,8 @@ func main() {
 	// apiHandle.Post("account/add", &AddAccountApi{})
 
 	// ── 6. 优雅停机：defer 是 LIFO，先关连接、再让 Listen 退出
-	//    （Listen 内部收到 SIGINT/SIGTERM 后先跑 onShutdown 钩子再 Shutdown）
+	//    （Listen 收到 SIGINT/SIGTERM 后先跑 OnShutdown 注册的钩子再 Shutdown；
+	//      长连接模块如 sse 已在构造时自注册，业务不必传参）
 	defer func() {
 		dbClearUp()
 		traceClearUp()
