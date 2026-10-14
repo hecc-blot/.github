@@ -72,8 +72,9 @@ func main() {
 	container.Set(new(cacheContract.ICacheFactory), cacheFactory)
 
 	// ── 5. HTTP 内核与路由
-	responseSvc := httpSvc.NewResponseSvc()
-	apiHandle := httpSvc.NewApiSvc(&config.Server, responseSvc, container)
+	apiHandle := httpSvc.NewApiSvc(&config.Server, container)
+	// 响应渲染只服务 Get/Post 注册的 API 路由；只跑 WS / SSE 的进程没有这行也能跑
+	apiHandle.SetResponseSvc(httpSvc.NewResponseSvc())
 	// trace 中间件决定 traceId 能否进入日志与下游调用，不注册则日志里没有 traceId
 	apiHandle.Middleware(trace.NewHttpMiddleware(traceSvc))
 	// apiHandle.Post("account/add", &AddAccountApi{})
@@ -129,6 +130,7 @@ func main() {
 | [scheduler](https://github.com/hecc-blot/scheduler) | 定时任务调度（cron） |
 | [ratelimit](https://github.com/hecc-blot/ratelimit) | 限流（内存 + Redis） |
 | [sse](https://github.com/hecc-blot/sse) | SSE 实时推送 |
+| [websocket](https://github.com/hecc-blot/websocket) | WebSocket 双向实时通信（握手 / 心跳 / 连接管理 / 优雅关闭） |
 | [lock](https://github.com/hecc-blot/lock) | 分布式锁（Redis / 内存） |
 | [metrics](https://github.com/hecc-blot/metrics) | 监控指标（Prometheus 采集） |
 | [idempotent](https://github.com/hecc-blot/idempotent) | 幂等（Redis / 内存） |
